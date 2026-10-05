@@ -1,0 +1,291 @@
+# Phantom-Guard offline prototype: plan
+
+## Current extension: portable hosted prototype
+
+PR #4's Phases 0–6 implementation is accepted on upstream main at `89b182f`.
+The owner now authorizes a CPU browser around recorded data/simulated CAN attacks,
+portable fresh-clone setup, shared paths/doctor, pinned runtime/container, real
+Windows/Linux validation and a checksummed private data/artifact handoff bundle.
+Implementation is in `feature/portable-hosted-prototype`, preserving prior histories.
+No detector operating point changes are authorized by new held-out measurements.
+The existing under-one false-alert target is still an explicitly failing criterion.
+Final executed extension status is appended after validation; see README and
+docs/setup.md, data.md, pipeline.md, deployment.md and server-handoff.md.
+
+## Context
+The repo contains only `SPEC.md` (the spec), `tools/decode.py` (decoder v2) and the four recorded CSVs. The
+task is to build the offline prototype that SPEC.md describes (frame layer, replay source, baseline, attacker,
+detector layers 1-5, evaluation and viewer) under its hard rules: causal only, no label leakage, attacker sampled
+from real distributions, thresholds learned from data, test split never used for tuning. After approval, the first
+step is to write this plan into `docs/plan.md`. The repo has no python deps yet; PyPI is reachable; 4 CPUs, 15 GB RAM.
+
+## What I checked before planning (stdlib, read-only, all four files)
+Matches SPEC.md: raw_len is always 8; header count == actual count; meas_counter steps by +1 everywhere and is
+continuous across files; sync_status is always 0x01; dyn_prop is always 0; the reserved bits (b6 bits 4-3) are
+always 0; `tools/decode.decode_object(raw_hex)` reproduces x/y/vx/vy/rcs in the CSV for **every** row (0
+mismatches); median period is 332 ticks (p1-p99 is 328-336); arrival offset is 2-77; slots run 0x00-0x35 and never
+repeat within a cycle; moving fraction is 5.0 / 6.7 / 1.6 / 6.3 %; the ghost at (18.6, 6.6) has vx ≈ -4.5 to
+-4.75 in every file.
+
+Contradictions and surprises (to go into `docs/plan.md` and `docs/decisions.md`):
+1. **The short sync gaps are capture-start artefacts.** In every file they are exactly gaps 0 and 1 (59-193
+   ticks). After that the minimum is ≥304 (304 appears only once, in front-back).
+2. **meas_counter is not a clock.** Between files `sync_timestamp` jumps 159k-208k ticks (16-21 s at 0.1 ms per
+   tick) while meas_counter advances by exactly 1. Hypothesis: with no node ACKing on the bus, the sensor stops
+   making progress (CAN retransmits the pending frame). When capture resumes, its queued frames flush, which
+   explains finding 1. Consequence: the cadence rule must ignore the first 2 gaps after a stream starts (a
+   "warm-up" rule taken from data), and counter continuity must be checked separately from timing.
+3. "The first cycle of a file may lack a full header" is **false** for these files: every cycle 1 has a full
+   header. The handling stays in the code anyway and the count is reported.
+4. Slot reassignments (jump > 1.0): emptyRoom has **12**, while SPEC.md says "at most 11". Minor; reported.
+5. The `source_file` column is `"live"` in every row. ReplaySource will take the label from the file name instead.
+6. `data/raw/` is tracked in git, but SPEC.md says it is gitignored. **Decision: untrack it**
+   (`git rm --cached`, files stay on disk untouched, add `data/raw/` and `data/processed/` to `.gitignore`).
+7. Only 41-49% of rows fall inside the default ROI (range ≤ 15). Both ghosts are outside it (ranges ≈ 19.7 and
+   ≈ 37), so the ROI handles them as SPEC.md intends.
+8. T4 overwrite conflicts with "no deletion of real frames". **Decision: level-dependent.** A0/A1 send the
+   forged frame alongside the real one with the same slot. A2+ replace the real frame in place, which is the same
+   strong capability as A2 header forging. Logged as a deliberate worst-case assumption.
+9. To verify in Phase 1: whether vy is ever meaningfully non-zero (the sensor may report only radial/Doppler
+   velocity, which matches the side-to-side note); whether RCS only takes integer values (raw always even), in
+   which case the attacker must match it; and RCS vs range.
+
+## Cross-cutting design decisions
+- **Package**: src layout, `pyproject.toml` (numpy, pandas, scikit-learn, torch CPU, matplotlib, pyyaml; dev:
+  pytest). Torch is installed from the CPU wheel index (`--index-url https://download.pytorch.org/whl/cpu`). If
+  that index is blocked, I fall back to PyPI and report it.
+- **Reusing the decoder**: `frames.decode_object` loads `tools/decode.py` with `importlib` (by path) and calls its
+  `decode_object`, so the formulas are not forked. `encode_object` is the exact inverse, using the scale/offset
+  table in `frames.py`. A test checks `decode(encode(decode(raw)))` and the byte equality of
+  `encode(decode(raw))` on all 442,724 rows.
+- **Cycle assembly** (`detect/pipeline.py`): frames come in, and a cycle closes when the next 0x60A arrives (this
+  is causal and adds one cycle of latency, documented). Detector state is per slot. Every frame gets a
+  `frame_index` (its position in the stream). Verdicts are emitted per frame_index, and only the evaluator joins
+  them with the labels file.
+- **Config**: `configs/default.yaml` holds ROI, zones, tick_seconds=1e-4 (flagged as an assumption), window sizes,
+  M-of-N 3/5, seeds, moving threshold 0.30, split fractions, and attack parameter ranges from SPEC.md (lifetimes,
+  counts). `configs/baseline.json` is generated, and every entry is `{value, rule, split, fp_rate_val}`.
+- **Splits** (`eval/splits.py`): per-file contiguous cycle blocks 60/20/20, plus LOSO (4 folds). Baseline and
+  learned thresholds use train (and validation for calibration). Test is used only by `run_attack_eval.py`.
+- **ROI**: the protocol layer checks every frame. The kinematic, replay and AE layers judge only objects inside
+  the ROI; objects outside it are counted and reported as "out-of-ROI", never flagged. The attacker places
+  T1/T2 objects inside the ROI.
+
+## Phases (pytest, commit and push after each, plus a short summary printed each time)
+
+**Phase 0: scaffold + frames.** Layout from SPEC.md, `pyproject.toml`, `.gitignore`, `configs/default.yaml`,
+`docs/plan.md`, `docs/decisions.md`; untrack data/raw. `frames.py`: `Frame(can_id, data, timestamp_ticks)`,
+`RadarObject` dataclass, `decode_object`, `encode_object`, `build_header(count, meas_counter, status)` (byte3 =
+0x00), `parse_header`. Tests: all-rows round trip, CSV columns vs decoder, header round trip, and a report of any
+byte differences (the reserved bits are expected to be the only possible source).
+
+**Phase 1: sources + baseline.** `io/source.py` (`FrameSource` protocol), `io/replay.py` (`ReplaySource(csv,
+cycle_range=None)`, which rebuilds headers and reports malformed/short/first-cycle counts), `io/live.py` stub.
+`stats/tracks.py`: per-slot track linking with reassignment detection (jump threshold learned from data).
+`stats/baseline.py` + `scripts/learn_baseline.py` (train split only): period/jitter with the warm-up rule,
+arrival-offset window (p0.1-p99.9 plus margin rule), objects/cycle, distribution of slots taken by new tracks,
+speed/acceleration envelopes of moving in-ROI tracks, birth stats (position, initial speed), per-track RCS std,
+range-rate vs reported radial velocity residual over a window (so the check survives 0.2 quantisation: 1 m/s ×
+33 ms = 0.033 per cycle, so a one-cycle check is meaningless). Prints each value next to the SPEC.md claim and
+flags mismatches. RCS-vs-range analysis: overall Spearman correlation plus per-track regression slopes, written
+to `docs/results/rcs_vs_range.md`.
+
+**Phase 2: attacker.** `attack/levels.py` (A0-A4 capability flags), `attack/scenarios.py` (T1-T4 generators,
+seeded from config), `attack/injector.py` (`AttackedSource(source, attacker, labels_path)`). Everything forged is
+built with `encode_object`/`build_header`, and slots, offsets, RCS and speeds come from `baseline.json`. A0:
+random times/slots/bytes. A1: offsets inside the window, free slot, header not fixed. A2: rewrites the header
+count (forged header labelled). A3: constant-velocity path with consistent velocity fields, RCS sampled per track
+with real jitter, and an integer RCS grid if the data has one. A4: T3 replay segments, or T1 paths built from real
+recorded moving tracks. T3 sources are reported separately: (a) earlier in the same stream, (b) the training
+portion, (c) another file's unseen portion. T4 follows the level-dependent rule above. Tests: A0 fails protocol
+checks; A2+ passes them; forged slot range, offsets and RCS fall inside the real ranges (KS-style tests against
+train); labels never appear in the frames or the pipeline.
+
+**Phase 3: physics gate.** `detect/protocol.py` (count mismatch, duplicate slot, counter continuity, cadence with
+warm-up, arrival offset, length/ID), `detect/kinematic.py` (windowed range-rate vs radial velocity, speed/accel
+envelope, implausible birth (scored), RCS stability, co-location), `detect/replay_fp.py` (quantised
+translation-invariant displacement+velocity k-gram hashes for moving tracks only, matched against a library from
+training plus the stream's own past and concurrent tracks; a minimum-motion-complexity gate stops constant-velocity
+real walks from matching). All thresholds come from train, and their FP rate on validation goes into
+baseline.json. Clean FP is reported per object-cycle and per minute, then detection by type × level. Latency test:
+p99 per cycle < 10 ms on about 25 objects.
+
+**Phase 4: learned layer.** `detect/autoencoder.py`: per-track windows (N from config, default 10) of [dx, dy,
+radial v, vx, vy, rcs, range] normalised with training stats; small MLP AE; CPU training with an epoch/time cap in
+`scripts/train.py`. Threshold = validation-clean percentile. Isolation-forest baseline on the same windows; report
+AUROC for both and keep the better one as the layer. `detect/fusion.py`: hard violations flag immediately,
+otherwise M-of-N per track. Both splits evaluated; time-to-detect measured.
+
+**Phase 5: report.** `eval/metrics.py`, `eval/report.py`, `scripts/run_attack_eval.py` (multiprocessing, fixed
+seeds, several runs) write CSVs plus `docs/results/summary.md`: the type × level × layer matrix, ablations
+(leave-one-layer-out), static vs moving, time-split vs LOSO, alerts/min, time-to-detect, evading levels stated
+explicitly, and the deck-claims section (kinematic plausibility, timing signature, RCS-vs-range, AE, "no
+labelled attack data").
+
+**Phase 6: viewer.** `viz/console.py` + `scripts/replay_demo.py`: matplotlib (interactive window at about real
+time, or headless Agg export), top-down x/y scatter, quiver velocity arrows, green/red with reason codes, alert
+log panel. PNG and GIF (PillowWriter) go to `docs/results/`. The choice is logged in decisions.md.
+
+## Verification
+- `pytest -q` after every phase (data tests skip if the CSVs are absent; a latency test is included).
+- `python scripts/learn_baseline.py`, `python scripts/train.py` and `python scripts/run_attack_eval.py` all run end
+  to end. Every number in `docs/results/` is produced by them.
+- `python scripts/replay_demo.py --file onePersonMovingFrontAndBack.csv --attack T1 --level A2 --export` produces
+  the PNG and GIF.
+- Final report: what works, what doesn't, the headline table, and the next 3 steps.
+
+## Post-approval updates
+Findings during implementation changed some details (gap bridging in the tracker, learned `rr_scale`, a
+range-conditional RCS band, burst-contiguity and range-order protocol checks). Each is logged with its evidence in
+`docs/decisions.md`.
+
+## Status (2026-10-03, second round)
+- Done: Phases 0-1; detector layers 1-5 (protocol, kinematic, replay fingerprint, autoencoder plus offline isolation
+  forest, M-of-N fusion); validation calibration; clean-data evaluation (`scripts/run_clean_eval.py` ->
+  `docs/results/clean_eval.md`); latency test; matplotlib viewer with PNG/GIF export.
+- Not done: the Phase 2 attacker (only level flags and data pools exist), so there are no attacked-data results,
+  no type x level x layer matrix, and no `run_attack_eval.py` / `summary.md`.
+- Commands: `python scripts/learn_baseline.py --loso && python scripts/train.py --loso && python scripts/calibrate.py --loso
+  && python scripts/run_clean_eval.py && python scripts/replay_demo.py --file onePersonMovingFrontAndBack.csv --export --around-first-alert`
+
+## Status (2026-10-04, isolated Phases 3–6 worktree)
+
+- Worktree: `D:\Hacksprint\phantom-guard-phases-3-6`; branch `feature/phases-3-6`; base
+  `7cdfa584edd20c8653991a8fbe8d6023c7b55493`. Original checkout and contributor work are preserved.
+- Phase 3 completed/audited: exact two-gap cadence warm-up; protocol malformed/duplicate/counter handling;
+  causal malformed-header boundaries; ROI-consistent windowed physics, learned radial scale, birth/colocation,
+  replay library/history/concurrent provenance, expiry and simple/static repeat exclusions; lossless frame
+  identities and separate CPU/assembly delay. New contradictions are in the dated decisions log.
+- Phase 4 completed/audited: identical offline/online features; training-only normalization; explicit unavailable,
+  empty/gap/stale artifacts; provenance-checked AE/IF/library; separate static/moving validation thresholds;
+  fixed AE deployment selection; equivalent captured windows for offline IF; missing-scan persistence and one
+  vote per track per scan. No attack/test-driven threshold/model selection.
+- Phase 5 implemented: `eval/report.py`, `eval/attack_adapter.py`, `scripts/run_attack_eval.py`, compatible
+  lossless metrics; exact label joins, cycle versus forged-object outcomes, censoring, AUROC, per-layer/ablation,
+  clean object/episode rates, CPU p99 budget and assembly delay. Reports/configurations/provenance are generated.
+  Real attack performance remains blocked because upstream Phase 2 scenario/injector code is absent; fixture
+  verification is explicitly not an attacker benchmark. See `docs/phase2-handoff.md` for the exact adapter API.
+- Phase 6 completed: clean replay and optional attacked FrameSource, `--attack/--level/--seed/--provider`,
+  strict artifact/argument/empty checks, detector-only colors/reasons/velocity/logs, headless PNG/GIF exports
+  and distinct names. Green means “not flagged.” Real attacked exports require Phase 2.
+- Raw data recovered read-only from initial Git blobs into this worktree; preparation ran in the prescribed
+  baseline -> train -> calibrate order for all five splits. Fresh evaluation outcomes and executed validation
+  are recorded in generated `docs/results/summary.md` and the final handoff; historical results remain disclosed.
+- This assignment's latest user instruction authorizes pushing the new branch after local commits. No merge
+  into main, deployment or contributor messaging is authorized or performed.
+- Final checks: 109 tests passed with no skips; generated JUnit report `docs/results/validation.xml`.
+  All four recordings match their original Git blobs and remain read-only. Baseline/train/calibrate/clean eval
+  completed for time-block and all LOSO folds. Final attack matrix is explicitly blocked/unsupported, with
+  eight clean segments measured; real attacked-data validation and exports await Phase 2.
+- Generated outputs: `docs/results/summary.md`, `attack_eval_*.csv`, `attack_eval_manifest.json`, fresh
+  `clean_eval*` reports, and front/back/chaotic `demo_*_test_clean` PNG/GIF/alert CSVs. Both real clean GIFs
+  contain 75 frames. Final diff has no attacker changes or original-checkout changes.
+## Status (2026-10-04, third round): Phase 2 complete
+- Added: synthetic fabricated-frame generator (`attack/scenarios.py`, `attack/injector.py`), the
+  attack evaluation (`scripts/run_attack_eval.py` -> `docs/results/summary.md` + attack_*.csv), the
+  `COUNT_RANGE` protocol check, viewer `--attack/--level` with ground-truth rings, attacked PNG/GIF demos.
+- All phases (0-6) now have code and generated results. 44 tests pass.
+- Full regeneration order: `learn_baseline.py --loso` -> `train.py --loso` -> `calibrate.py --loso`
+  -> `run_clean_eval.py` -> `run_attack_eval.py`
+  -> `replay_demo.py --file onePersonMovingFrontAndBack.csv --attack T1 --level A3 --export`
+
+## Status (2026-10-04, fourth round): enhancement #1 (clean false alarms)
+- Autoencoder made corroborating-only; fusion M/N chosen on clean validation (`fusion_mn`, 4/6 time-block).
+- Clean test 4.73 -> 1.42 alerts/min, LOSO 5.87 -> 3.98; detection cost 2-6 points at A2-A4. Target < 1/min still not met.
+- Attack eval made reproducible (seed bug); both evals now report the previous operating point like-for-like.
+
+## Final status (2026-10-04, complete workflow in the existing feature worktree)
+
+This section supersedes earlier availability/status snapshots, which remain as history.
+
+- Worktree `D:\Hacksprint\phantom-guard-phases-3-6`, branch `feature/phases-3-6`, original
+  base `7cdfa584edd20c8653991a8fbe8d6023c7b55493`. Merged accepted upstream main
+  `1f5d2eea3d9bc8343666fb20025ea6fdf2d0d3da` with both histories preserved. The three
+  new accepted commits supply Phase 2 and validation-based fusion; contributor
+  branches and the original checkout remain untouched.
+- **Phase 0:** reused accepted scaffold/decoder/byte-exact object round trips; bounded
+  classic CAN headers at eight bytes while preserving unknown reconstructed DLC.
+- **Phase 1:** reused ingestion/tracking and regenerated all training baselines,
+  including learned median cadence and `rr_scale`. All four supplied source CSVs and
+  read-only raw copies match the archived SHA256 inventory.
+- **Phase 2:** integrated accepted planners/injector through `AttackedSource` and
+  ordinary frames. Complete final-index labels include forged headers. Lifecycle
+  metadata, generic-source buffering, level-dependent T4, stable-slot handling,
+  gap-separated scheduling, serialized bus timing, real pools, and explicit replay
+  provenance are implemented and tested. A2 remains unaware of range order and
+  burst contiguity; A3+ implements them. See `docs/phase2-handoff.md`.
+- **Phase 3:** causal cycle verdicts, exact two-gap warm-up, malformed/duplicate/
+  missing-header/counter rollover checks; ROI-consistent windowed physics, track gaps
+  and reassignment; training/history/concurrent translation-invariant replay gates.
+- **Phase 4:** clean CPU AE training/NumPy inference, equivalent-window IF comparison,
+  training-only normalization, split/scenario resets, separate static/moving
+  calibration, strict artifact provenance, explicit unavailable outcomes, hard
+  immediate alerts and calibrated soft persistence. Fixed AE deployment selection;
+  no new held-out model or threshold selection. The accepted corroborating AE policy
+  adds no incremental boolean alerts; raw-score comparisons remain reported.
+- **Phase 5:** full real-data evaluation finished with seeds 11/22/33, three repetitions,
+  fixed time blocks and all four LOSO folds, every layer and ablation, static/moving
+  and replay source/translation cases. Of 2,664 supported attempts, 2,411 emitted
+  eligible attacks, 198 had no eligible source material, and 55 exhausted slot
+  capacity. T3/A0–A2 adds 1,296 explicit unsupported requests. No integration blocker;
+  no fixture headline metrics. All per-run/instance, matrix/layer, clean/exclusion,
+  provenance, AUROC, delay and latency evidence is programmatically generated.
+- **Phase 6:** actual clean and attacked CLI paths work. Four PNG/GIF pairs and alert
+  logs were regenerated (front/back clean and T1/A2; chaotic clean and T1/A3).
+  Every GIF has 75 frames at 840×378. Real Tk clean/attacked event loops passed an
+  automated window-closure smoke check; no human usability review is claimed.
+  Viewer colors remain detector-only and green means not flagged.
+- **Executed validation:** preparation ran in baseline -> train -> calibrate ->
+  clean eval -> attack eval order; all five trained/calibrated artifact bundles are
+  compatible. Full pytest: **139 passed, zero skipped**, JUnit archived. Compileall,
+  pip dependency check, diff whitespace review, source checksum/local import checks,
+  viewer exports and real Tk checks passed.
+- **Performance acceptance:** clean false alerts are **1.42/min time-block** and
+  **3.41/min LOSO**, so the under-1 target remains **NOT MET**. Single-worker clean
+  processing p99 is 1.52 ms; worst completed attacked-run p99 is 5.76 ms, with no
+  completed run over the 10 ms budget. Capture assembly p99 is separately 33.5–33.6 ms
+  under the configured, unverified tick duration. Eighteen observed runs completely
+  evade scene detection. The generated summary retains misses and differentiates
+  scene alarms from forged-object identification.
+- **Remaining limits:** static phantoms and complex genuine repeated motion,
+  cross-scenario envelope generalization, unavailable moving clips/slot capacity,
+  assumed coordinate/tick/header layout, and lack of live hardware verification.
+  No missing Phase 2 interface dependency remains. Historical test inspection is
+  still disclosed; remaining false positives did not drive new threshold tuning.
+- Publication is to the verified `Aurora-source/phantom-guard` fork, followed by a
+  cross-fork PR to `Krishna-Gunjan/phantom-guard:main`. This replaces the old
+  push-after-each-phase/main-publication instructions for the current assignment.
+
+## Final extension status (2026-10-05)
+
+- Accepted Phases 0-6 remain implemented: decoder/source/baseline and real attacker
+  integration; causal protocol/physics/replay; CPU AE, offline IF and validation
+  fusion; full clean/attack/layer/ablation reporting; real matplotlib replay. No
+  attacker contract dependency remains. The under-one clean FP criterion is failing.
+- Added installed CPU CLI, a canonical immutable/raw-processed-model-runs layout,
+  shared anchored configuration, directory initialization/import/checksums, doctor,
+  pinned runtime/offline/training locks and explicit Python 3.11 support. Decoder
+  and commands live in the package; compatibility wrappers retain their interfaces.
+- Added bounded isolated browser/API jobs using real test replay and accepted
+  attacks, actual published evaluation data, detector colors/reasons/velocity/logs,
+  reset/cancellation and immutable playback seeks. Ground truth never affects it.
+  Linux deployment uses a pinned nonroot/read-only container and dedicated outputs.
+- Latest accepted main `f93f283` is merged. Its artifact IDs were unavailable
+  locally, so matching baselines/models/calibration were prepared offline using
+  fixed training/validation segments. Full matrix source is `e530d8f`: 2,411
+  eligible runs, 198 no-material attempts, 55 capacity exclusions, 1,296 unsupported
+  requests and no integration blockers. Earlier sweeps remain in Git history.
+  Windows and Ubuntu 26.04.1 WSL normal-wheel tests, real exports, browser/API
+  and container checks pass; executed counts and final checks are in the evidence.
+- Fresh generated results and portability evidence are under docs/results/portable
+  and portable_validation.json. Fresh clean FP is 1.42/3.41 per minute; eighteen
+  evading completed runs remain reported. Worst attacked processing p99 is 8.55 ms,
+  idle single-worker clean p99 is 1.97 ms; assembly p99 is separately 33.5–33.6 ms.
+  The under-one false-alert acceptance criterion still fails.
+- Final viewer correction anchors recording names to configured raw data and
+  explicit relative paths to the workspace; caller-directory files cannot override
+  either. Targeted regressions cover both the resolver and actual CLI selection.
+  Source newline equivalence is recorded separately from original benchmark hashes.
+- Private reproducible deployment ZIP, checksums and server handoff are prepared
+  locally; final archive verification/restoration and publication status are in the
+  handoff/delivery response. Actual home-server deployment is a later assignment.

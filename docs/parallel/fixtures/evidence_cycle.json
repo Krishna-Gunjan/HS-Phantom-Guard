@@ -1,0 +1,101 @@
+{
+  "fixture": "detector cycle with evidence",
+  "recording": "multiplePeopleChaotic.csv",
+  "attack": "T1",
+  "level": "A3",
+  "seed": 11,
+  "detector_artifact_id": "2ad682efc017e2cf96d856772b20db898edd6c1e253947b3df013a671f067115",
+  "note": "Labels are NOT part of this record; evidence is derived from observed input and frozen calibration only. Only objects with a reason carry evidence.",
+  "cycle": {
+    "index": 141,
+    "cycle_reasons": [],
+    "cycle_alert": false,
+    "cycle_evidence": [],
+    "objects": [
+      {
+        "frame_index": 3341,
+        "slot": 14,
+        "x": 5.6,
+        "y": 4.6,
+        "vx": 0.0,
+        "vy": -2.75,
+        "in_roi": true,
+        "moving": true,
+        "track_id": 129,
+        "reasons": [
+          "COLOC"
+        ],
+        "scores": {
+          "accel": 0.0
+        },
+        "flagged": true,
+        "alert": true,
+        "timestamp_ticks": 50724721,
+        "score_status": {
+          "association": "continued",
+          "ae": "insufficient_history"
+        },
+        "evidence": [
+          {
+            "schema": 1,
+            "reason": "COLOC",
+            "class": "empirical_tail",
+            "scope": "object",
+            "status": "trigger",
+            "frames": [
+              3340,
+              3341
+            ],
+            "cycles": null,
+            "observed": 0.2828427124746186,
+            "expected": null,
+            "lo": 0.39999999999999947,
+            "hi": null,
+            "normalized": null,
+            "support": null,
+            "suspects": {
+              "frames": [
+                3340,
+                3341
+              ],
+              "track_id": null,
+              "basis": "colocated_pair"
+            },
+            "note": "the younger track is flagged; track age does not show which object is forged"
+          },
+          {
+            "schema": 1,
+            "reason": "PERSISTENCE",
+            "class": "fusion",
+            "scope": "track",
+            "status": "persistent",
+            "frames": [
+              3266,
+              3291,
+              3317,
+              3341
+            ],
+            "cycles": [
+              138,
+              141
+            ],
+            "observed": 4.0,
+            "expected": 4.0,
+            "lo": null,
+            "hi": 6.0,
+            "normalized": null,
+            "support": null,
+            "suspects": {
+              "frames": [
+                3341
+              ],
+              "track_id": 129,
+              "basis": "exact_frame"
+            },
+            "note": "4 of the last 6 cycles flagged: COLOC"
+          }
+        ]
+      }
+    ]
+  }
+}

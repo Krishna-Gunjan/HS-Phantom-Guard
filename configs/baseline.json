@@ -1,0 +1,2080 @@
+{
+  "_meta": {
+    "note": "val_exceedance = fraction of held-out clean items (gaps, frames, windows) beyond the threshold; detector-level false-positive rates are reported by scripts/run_attack_eval.py",
+    "train_segments": [
+      {
+        "file": "emptyRoom.csv",
+        "hi": 2626,
+        "lo": 0
+      },
+      {
+        "file": "onePersonMovingFrontAndBack.csv",
+        "hi": 2476,
+        "lo": 0
+      },
+      {
+        "file": "onePersonMovingSideToSide.csv",
+        "hi": 2995,
+        "lo": 0
+      },
+      {
+        "file": "multiplePeopleChaotic.csv",
+        "hi": 3358,
+        "lo": 0
+      }
+    ],
+    "val_segments": [
+      {
+        "file": "emptyRoom.csv",
+        "hi": 3502,
+        "lo": 2626
+      },
+      {
+        "file": "onePersonMovingFrontAndBack.csv",
+        "hi": 3301,
+        "lo": 2476
+      },
+      {
+        "file": "onePersonMovingSideToSide.csv",
+        "hi": 3994,
+        "lo": 2995
+      },
+      {
+        "file": "multiplePeopleChaotic.csv",
+        "hi": 4477,
+        "lo": 3358
+      }
+    ]
+  },
+  "accel_hard": {
+    "rule": "q0.999 of |dv|/dt between consecutive cycles (all in-ROI tracks)",
+    "split": "train",
+    "val_exceedance": 0.0003311848775889741,
+    "value": 16.687074458725323
+  },
+  "accel_soft": {
+    "rule": "q0.99 of |dv|/dt (all in-ROI tracks)",
+    "split": "train",
+    "value": 7.552870090714466
+  },
+  "ae_threshold_moving": {
+    "n_windows": 1479,
+    "quantile": 0.9999,
+    "rule": "q0.9999 of VALIDATION clean AE reconstruction error score (moving windows, window=10 cycles)",
+    "split": "val",
+    "train_exceedance": 0.014148681055155876,
+    "train_windows": 4170,
+    "value": 12.390364242597148
+  },
+  "ae_threshold_static": {
+    "n_windows": 33699,
+    "quantile": 0.9999,
+    "rule": "q0.9999 of VALIDATION clean AE reconstruction error score (static windows, window=10 cycles)",
+    "split": "val",
+    "train_exceedance": 0.0007524018983678666,
+    "train_windows": 103668,
+    "value": 2.5393532133901515
+  },
+  "arrival_hi": {
+    "rule": "max(train arrival offsets) + 2 ticks",
+    "split": "train",
+    "val_exceedance": 0.0,
+    "value": 78
+  },
+  "arrival_lo": {
+    "rule": "min(train arrival offsets) - 2 ticks",
+    "split": "train",
+    "val_exceedance": 0.0,
+    "value": 0
+  },
+  "arrival_pos": {
+    "rule": "arrival offset ~ a + b*k by burst position k (one-sided, late arrivals); train, robust linear fit",
+    "split": "train",
+    "value": {
+      "a": 2.4828506976849867,
+      "b": 2.399440443950156,
+      "base_bound": 3.5294729647568306,
+      "max_position": 31,
+      "n": 265953,
+      "one_sided": "late arrivals only; see module docstring",
+      "quantisation_floor_ticks": 1.0,
+      "resid_q": {
+        "0.5": -0.07221913273794911,
+        "0.99": 0.922185306763609,
+        "0.999": 0.9277808672620509,
+        "0.9999": 2.5294729647568306,
+        "1.0": 3.5255426430626713
+      },
+      "resid_std": 0.4228341232768247
+    }
+  },
+  "birth_range_hist": {
+    "rule": "histogram of birth range of in-ROI tracks (train)",
+    "split": "train",
+    "value": {
+      "counts": [
+        14,
+        55,
+        31,
+        87,
+        3,
+        119,
+        166,
+        27,
+        73,
+        26,
+        43,
+        54,
+        138,
+        162,
+        255
+      ],
+      "edges": [
+        0.0,
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0,
+        6.0,
+        7.0,
+        8.0,
+        9.0,
+        10.0,
+        11.0,
+        12.0,
+        13.0,
+        14.0,
+        15.0
+      ]
+    }
+  },
+  "birth_rate_in_roi": {
+    "rule": "mean track births per cycle in ROI (train)",
+    "split": "train",
+    "value": 0.10938454823221301
+  },
+  "birth_speed_soft": {
+    "rule": "q0.99 of speed at birth (in-ROI tracks)",
+    "split": "train",
+    "value": 2.462214450449026
+  },
+  "burst_gap_hi": {
+    "rule": "max(train gap between consecutive object frames) + 2 ticks",
+    "split": "train",
+    "val_exceedance": 0.0,
+    "value": 7
+  },
+  "burst_gap_hist": {
+    "rule": "histogram of train inter-frame gaps (ticks)",
+    "split": "train",
+    "value": {
+      "2": 153246,
+      "3": 101248,
+      "5": 4
+    }
+  },
+  "burst_gap_lo": {
+    "rule": "min(train gap between consecutive object frames); a CAN frame cannot be shorter",
+    "split": "train",
+    "val_exceedance": 0.0,
+    "value": 2
+  },
+  "cadence_hi": {
+    "rule": "max(train header gaps) + 2 ticks",
+    "split": "train",
+    "val_exceedance": 0.0,
+    "value": 339
+  },
+  "cadence_lo": {
+    "rule": "min(train header gaps after 2-cycle warm-up) - 2 ticks",
+    "split": "train",
+    "val_exceedance": 0.0,
+    "value": 302
+  },
+  "cadence_median": {
+    "rule": "median(train header gaps after capture warm-up)",
+    "split": "train",
+    "value": 332.0
+  },
+  "colocation_min": {
+    "frac_zero": 0.0,
+    "rule": "q0.00100 of per-cycle minimum distance between in-ROI objects",
+    "split": "train",
+    "val_exceedance": 0.0,
+    "value": 0.39999999999999947
+  },
+  "counter_step": {
+    "observed": [
+      1
+    ],
+    "rule": "every train counter step is +1 (mod 65536)",
+    "split": "train",
+    "val_exceedance": 0.0,
+    "value": 1
+  },
+  "detector_contract": {
+    "rule": "structural and exact-regularity rules stay hard; empirical tails and new conditional models are soft evidence whose exceedance thresholds are calibrated from out-of-recording clean episodes",
+    "split": "train",
+    "value": {
+      "new_codes": [
+        "ARRIVAL_POS",
+        "RCS_ENV",
+        "DRIFT"
+      ],
+      "off": [
+        "ARRIVAL",
+        "RCS_BAND",
+        "RCS_RANGE"
+      ],
+      "profile": "v2",
+      "schema": 1
+    }
+  },
+  "drift_model": {
+    "rule": "radial/tangential position-vs-integrated-velocity mapping and robust scales per horizon and regime",
+    "split": "train",
+    "value": {
+      "floor": 0.08164965809277261,
+      "horizons": [
+        8,
+        16,
+        32
+      ],
+      "models": {
+        "16:moving": {
+          "B_radial": 0.6070743129244163,
+          "B_tangential": 0.7932248715621453,
+          "corr_radial": 0.7157757819288828,
+          "corr_tangential": 0.6668264299891988,
+          "n": 2644,
+          "q999_radial": 0.4938406784223843,
+          "q999_tangential": 1.5847106074026036,
+          "scale_radial": 0.08164965809277261,
+          "scale_tangential": 0.22553918920537022,
+          "status": "supported",
+          "std_radial": 0.1162079227245167,
+          "std_tangential": 0.30544009552787477
+        },
+        "16:static": {
+          "B_radial": 0.012943587869828969,
+          "B_tangential": 0.6621519730819357,
+          "corr_radial": -0.0005919571017793454,
+          "corr_tangential": 0.06431428854318669,
+          "n": 99261,
+          "q999_radial": 0.281832484543535,
+          "q999_tangential": 0.9998918860475792,
+          "scale_radial": 0.08164965809277261,
+          "scale_tangential": 0.08164965809277261,
+          "status": "supported",
+          "std_radial": 0.06000325506456417,
+          "std_tangential": 0.15686897457983537
+        },
+        "32:moving": {
+          "B_radial": 0.46092114367465914,
+          "B_tangential": 0.8088065786901262,
+          "corr_radial": 0.7489329959425086,
+          "corr_tangential": 0.7948416558989515,
+          "n": 2267,
+          "q999_radial": 0.6774858105541145,
+          "q999_tangential": 1.4871273104221805,
+          "scale_radial": 0.12935724883926317,
+          "scale_tangential": 0.259427344518175,
+          "status": "supported",
+          "std_radial": 0.15567005190405736,
+          "std_tangential": 0.29651014242786394
+        },
+        "32:static": {
+          "B_radial": 0.005739611851925908,
+          "B_tangential": 0.593264518367915,
+          "corr_radial": -0.0025258827906458406,
+          "corr_tangential": 0.07732926707286017,
+          "n": 92043,
+          "q999_radial": 0.2931173966505199,
+          "q999_tangential": 1.280482837119984,
+          "scale_radial": 0.08164965809277261,
+          "scale_tangential": 0.08164965809277261,
+          "status": "supported",
+          "std_radial": 0.06280834150886255,
+          "std_tangential": 0.18694706173577974
+        },
+        "8:moving": {
+          "B_radial": 0.6924669537644808,
+          "B_tangential": 0.8932979669683103,
+          "corr_radial": 0.6642302604553952,
+          "corr_tangential": 0.6265110857770531,
+          "n": 2967,
+          "q999_radial": 0.47605152585970406,
+          "q999_tangential": 1.3686346596549468,
+          "scale_radial": 0.08164965809277261,
+          "scale_tangential": 0.1715326163477099,
+          "status": "supported",
+          "std_radial": 0.10239286471189386,
+          "std_tangential": 0.24077388141821182
+        },
+        "8:static": {
+          "B_radial": 0.0029500391846549387,
+          "B_tangential": 0.6367867646471476,
+          "corr_radial": -0.002776188887637991,
+          "corr_tangential": 0.046157637013222216,
+          "n": 104879,
+          "q999_radial": 0.22951643793052562,
+          "q999_tangential": 0.7209983270728624,
+          "scale_radial": 0.08164965809277261,
+          "scale_tangential": 0.08164965809277261,
+          "status": "supported",
+          "std_radial": 0.05751622673315194,
+          "std_tangential": 0.12338268240847103
+        }
+      },
+      "regime_speed": 0.3
+    }
+  },
+  "first_arrival_hi": {
+    "rule": "max(train first-object offset) + 2 ticks",
+    "split": "train",
+    "value": 5
+  },
+  "fixed_fields": {
+    "rule": "set of values seen in train; anything else is a violation",
+    "split": "train",
+    "value": {
+      "dyn_prop": [
+        0
+      ],
+      "reserved": [
+        0
+      ],
+      "status": [
+        1
+      ]
+    }
+  },
+  "fusion_mn": {
+    "rule": "profile v2 fixes M/N at the published 4-of-6; M/N variants are reported as ablations",
+    "split": "cv_out_of_recording",
+    "table": [],
+    "value": [
+      4,
+      6
+    ]
+  },
+  "fusion_policy": {
+    "rule": "hard = structural + exact_regularity classes; cycle-level soft reasons need 2 of 4 cycles",
+    "split": "train",
+    "value": {
+      "cycle_m": 2,
+      "cycle_n": 4,
+      "hard_codes": [
+        "BAD_ID",
+        "BURST_GAP",
+        "COUNTER",
+        "COUNT_MISMATCH",
+        "DUP_SLOT",
+        "FIXED_FIELD",
+        "FRAME_LEN",
+        "HEADER_LEN",
+        "NO_HEADER",
+        "RANGE_ORDER",
+        "RCS_GRID",
+        "SHORT_HEADER",
+        "STATUS"
+      ],
+      "learned_alone": false
+    }
+  },
+  "hold_frac_moving": {
+    "rule": "p5/p50/p95 over moving in-ROI tracks of the fraction of cycles where x, y, vx, vy are all unchanged",
+    "split": "train",
+    "value": [
+      0.362,
+      0.574,
+      0.812
+    ]
+  },
+  "iforest_threshold_moving": {
+    "n_windows": 1479,
+    "quantile": 0.9999,
+    "rule": "q0.9999 of VALIDATION clean isolation-forest anomaly score (moving windows, window=10 cycles)",
+    "split": "val",
+    "value": 0.689135215808091
+  },
+  "iforest_threshold_static": {
+    "n_windows": 33699,
+    "quantile": 0.9999,
+    "rule": "q0.9999 of VALIDATION clean isolation-forest anomaly score (static windows, window=10 cycles)",
+    "split": "val",
+    "value": 0.5670340557153015
+  },
+  "learned_artifacts": {
+    "ae": {
+      "artifact_id": "2ad682efc017e2cf96d856772b20db898edd6c1e253947b3df013a671f067115",
+      "baseline_signature": "40ffb109eb8d969a532ec57e7daf272b009392fde825978a13121fbbb61d40be",
+      "contract": {
+        "features": [
+          "dx",
+          "dy",
+          "vx",
+          "vy",
+          "radial_velocity",
+          "rcs",
+          "range"
+        ],
+        "max_gap_cycles": 1,
+        "moving_threshold": 0.3,
+        "reassign_jump_default": 1.0,
+        "roi_max_range": 15.0,
+        "tick_seconds": 0.0001,
+        "window_cycles": 10,
+        "window_policy": "consecutive_cycles_all_points_in_roi"
+      },
+      "kind": "ae",
+      "normalization_split": "train",
+      "schema_version": 1,
+      "seed": 11,
+      "segments": {
+        "train": [
+          {
+            "file": "emptyRoom.csv",
+            "hi": 2626,
+            "lo": 0
+          },
+          {
+            "file": "onePersonMovingFrontAndBack.csv",
+            "hi": 2476,
+            "lo": 0
+          },
+          {
+            "file": "onePersonMovingSideToSide.csv",
+            "hi": 2995,
+            "lo": 0
+          },
+          {
+            "file": "multiplePeopleChaotic.csv",
+            "hi": 3358,
+            "lo": 0
+          }
+        ],
+        "val": [
+          {
+            "file": "emptyRoom.csv",
+            "hi": 3502,
+            "lo": 2626
+          },
+          {
+            "file": "onePersonMovingFrontAndBack.csv",
+            "hi": 3301,
+            "lo": 2476
+          },
+          {
+            "file": "onePersonMovingSideToSide.csv",
+            "hi": 3994,
+            "lo": 2995
+          },
+          {
+            "file": "multiplePeopleChaotic.csv",
+            "hi": 4477,
+            "lo": 3358
+          }
+        ]
+      },
+      "selection_rule": "AE fixed for NumPy CPU inference; IF is an offline comparison; no test selection",
+      "source_sha256": {
+        "emptyRoom.csv": "13fb666d6525e90f42bf823c7a938ee96d5819f5b541a834edda631bf6be2ebc",
+        "multiplePeopleChaotic.csv": "2e08ed3c26c9cb64a5039878b1ef371fc2138ad0aa717efddc2eca1bea952f52",
+        "onePersonMovingFrontAndBack.csv": "fe4fb020719c47686dce840a80f51f6b2ee7f3d69c50cf0d872015319e9c414e",
+        "onePersonMovingSideToSide.csv": "04f105a1e412abfe4ce0153d8f2787a9b1ee79aba04a0a362b1d44ad4c2a6340"
+      },
+      "tag": "timeblock",
+      "threshold_split": "val",
+      "train_moving_windows": 4170,
+      "train_windows": 107838,
+      "training": {
+        "batch_size": 512,
+        "epochs_completed": 30,
+        "epochs_configured": 30,
+        "hidden": 32,
+        "latent": 6,
+        "learning_rate": 0.001,
+        "max_train_seconds": 300,
+        "stopping_reason": "configured_epochs_complete",
+        "train_seconds": 5.979861259460449
+      },
+      "val_moving_windows": 1479,
+      "val_windows": 35178
+    },
+    "iforest": {
+      "artifact_id": "c804cd658e4119cbb28d1466bc2dc82bcf3808fe1242431eaddfbf3bb532f13c",
+      "baseline_signature": "40ffb109eb8d969a532ec57e7daf272b009392fde825978a13121fbbb61d40be",
+      "bootstrap": false,
+      "contamination": "auto",
+      "contract": {
+        "features": [
+          "dx",
+          "dy",
+          "vx",
+          "vy",
+          "radial_velocity",
+          "rcs",
+          "range"
+        ],
+        "max_gap_cycles": 1,
+        "moving_threshold": 0.3,
+        "reassign_jump_default": 1.0,
+        "roi_max_range": 15.0,
+        "tick_seconds": 0.0001,
+        "window_cycles": 10,
+        "window_policy": "consecutive_cycles_all_points_in_roi"
+      },
+      "fit_windows": 50000,
+      "kind": "iforest",
+      "max_features": 1.0,
+      "max_samples": 256,
+      "normalization_split": "train",
+      "schema_version": 1,
+      "seed": 11,
+      "segments": {
+        "train": [
+          {
+            "file": "emptyRoom.csv",
+            "hi": 2626,
+            "lo": 0
+          },
+          {
+            "file": "onePersonMovingFrontAndBack.csv",
+            "hi": 2476,
+            "lo": 0
+          },
+          {
+            "file": "onePersonMovingSideToSide.csv",
+            "hi": 2995,
+            "lo": 0
+          },
+          {
+            "file": "multiplePeopleChaotic.csv",
+            "hi": 3358,
+            "lo": 0
+          }
+        ],
+        "val": [
+          {
+            "file": "emptyRoom.csv",
+            "hi": 3502,
+            "lo": 2626
+          },
+          {
+            "file": "onePersonMovingFrontAndBack.csv",
+            "hi": 3301,
+            "lo": 2476
+          },
+          {
+            "file": "onePersonMovingSideToSide.csv",
+            "hi": 3994,
+            "lo": 2995
+          },
+          {
+            "file": "multiplePeopleChaotic.csv",
+            "hi": 4477,
+            "lo": 3358
+          }
+        ]
+      },
+      "selection_rule": "AE fixed for NumPy CPU inference; IF is an offline comparison; no test selection",
+      "source_sha256": {
+        "emptyRoom.csv": "13fb666d6525e90f42bf823c7a938ee96d5819f5b541a834edda631bf6be2ebc",
+        "multiplePeopleChaotic.csv": "2e08ed3c26c9cb64a5039878b1ef371fc2138ad0aa717efddc2eca1bea952f52",
+        "onePersonMovingFrontAndBack.csv": "fe4fb020719c47686dce840a80f51f6b2ee7f3d69c50cf0d872015319e9c414e",
+        "onePersonMovingSideToSide.csv": "04f105a1e412abfe4ce0153d8f2787a9b1ee79aba04a0a362b1d44ad4c2a6340"
+      },
+      "tag": "timeblock",
+      "threshold_split": "val",
+      "train_moving_windows": 4170,
+      "train_windows": 107838,
+      "trees": 200,
+      "val_moving_windows": 1479,
+      "val_windows": 35178
+    },
+    "replay": {
+      "artifact_id": "04a0b4acc672704d327a78dfade7b70ada2bf64d5d62b2777f39e8e79dc3ca02",
+      "baseline_signature": "40ffb109eb8d969a532ec57e7daf272b009392fde825978a13121fbbb61d40be",
+      "contract": {
+        "max_gap_cycles": 1,
+        "moving_threshold": 0.3,
+        "reassign_jump_default": 1.0,
+        "replay": {
+          "disp_quant": 0.2,
+          "history_cycles": 20000,
+          "k_gram": 12,
+          "min_complexity": 4,
+          "vel_quant": 0.25
+        },
+        "roi_max_range": 15.0,
+        "tick_seconds": 0.0001,
+        "window_policy": "consecutive_cycles_all_points_in_roi"
+      },
+      "kind": "replay",
+      "normalization_split": "train",
+      "schema_version": 1,
+      "seed": 11,
+      "segments": {
+        "train": [
+          {
+            "file": "emptyRoom.csv",
+            "hi": 2626,
+            "lo": 0
+          },
+          {
+            "file": "onePersonMovingFrontAndBack.csv",
+            "hi": 2476,
+            "lo": 0
+          },
+          {
+            "file": "onePersonMovingSideToSide.csv",
+            "hi": 2995,
+            "lo": 0
+          },
+          {
+            "file": "multiplePeopleChaotic.csv",
+            "hi": 3358,
+            "lo": 0
+          }
+        ],
+        "val": [
+          {
+            "file": "emptyRoom.csv",
+            "hi": 3502,
+            "lo": 2626
+          },
+          {
+            "file": "onePersonMovingFrontAndBack.csv",
+            "hi": 3301,
+            "lo": 2476
+          },
+          {
+            "file": "onePersonMovingSideToSide.csv",
+            "hi": 3994,
+            "lo": 2995
+          },
+          {
+            "file": "multiplePeopleChaotic.csv",
+            "hi": 4477,
+            "lo": 3358
+          }
+        ]
+      },
+      "selection_rule": "AE fixed for NumPy CPU inference; IF is an offline comparison; no test selection",
+      "source_sha256": {
+        "emptyRoom.csv": "13fb666d6525e90f42bf823c7a938ee96d5819f5b541a834edda631bf6be2ebc",
+        "multiplePeopleChaotic.csv": "2e08ed3c26c9cb64a5039878b1ef371fc2138ad0aa717efddc2eca1bea952f52",
+        "onePersonMovingFrontAndBack.csv": "fe4fb020719c47686dce840a80f51f6b2ee7f3d69c50cf0d872015319e9c414e",
+        "onePersonMovingSideToSide.csv": "04f105a1e412abfe4ce0153d8f2787a9b1ee79aba04a0a362b1d44ad4c2a6340"
+      },
+      "tag": "timeblock",
+      "threshold_split": "val",
+      "train_moving_windows": 4170,
+      "train_windows": 107838,
+      "val_moving_windows": 1479,
+      "val_windows": 35178
+    }
+  },
+  "learned_selection": {
+    "comparison_windows": "identical eligible windows and train-only normalization",
+    "model": "ae",
+    "rule": "AE fixed for NumPy CPU inference; IF is an offline comparison; no test selection"
+  },
+  "moving_speed_samples": {
+    "rule": "101 quantiles of moving in-ROI reported speed (attacker sampling)",
+    "split": "train",
+    "value": [
+      0.354,
+      0.354,
+      0.354,
+      0.354,
+      0.354,
+      0.354,
+      0.354,
+      0.354,
+      0.354,
+      0.354,
+      0.354,
+      0.354,
+      0.354,
+      0.354,
+      0.354,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.559,
+      0.559,
+      0.559,
+      0.559,
+      0.559,
+      0.559,
+      0.559,
+      0.559,
+      0.559,
+      0.559,
+      0.559,
+      0.559,
+      0.559,
+      0.559,
+      0.559,
+      0.559,
+      0.559,
+      0.559,
+      0.559,
+      0.559,
+      0.559,
+      0.559,
+      0.559,
+      0.559,
+      0.559,
+      0.559,
+      0.707,
+      0.707,
+      0.707,
+      0.707,
+      0.75,
+      0.75,
+      0.75,
+      0.791,
+      0.791,
+      0.791,
+      0.791,
+      0.901,
+      0.901,
+      0.901,
+      0.901,
+      0.901,
+      0.901,
+      0.901,
+      0.901,
+      1.0,
+      1.031,
+      1.061,
+      1.061,
+      1.118,
+      1.118,
+      1.25,
+      1.25,
+      1.275,
+      1.275,
+      1.346,
+      1.414,
+      1.458,
+      1.458,
+      1.521,
+      1.581,
+      1.601,
+      1.677,
+      1.768,
+      1.803,
+      1.817,
+      1.904,
+      2.016,
+      2.062,
+      2.136,
+      2.236,
+      2.305,
+      2.462,
+      2.61,
+      2.915,
+      3.553,
+      4.962
+    ]
+  },
+  "objs_per_cycle_hi": {
+    "rule": "max(train objects per cycle)",
+    "split": "train",
+    "value": 32
+  },
+  "objs_per_cycle_lo": {
+    "rule": "min(train objects per cycle)",
+    "split": "train",
+    "value": 11
+  },
+  "offset_hist": {
+    "rule": "histogram of train arrival offsets (ticks)",
+    "split": "train",
+    "value": [
+      0,
+      0,
+      6410,
+      5045,
+      1818,
+      9637,
+      0,
+      8504,
+      2951,
+      3929,
+      7526,
+      6,
+      10548,
+      901,
+      5885,
+      5570,
+      1529,
+      9923,
+      3,
+      8264,
+      3191,
+      3695,
+      7760,
+      24,
+      10370,
+      1061,
+      5520,
+      5935,
+      1119,
+      10305,
+      27,
+      7755,
+      3686,
+      3234,
+      8191,
+      36,
+      9913,
+      1448,
+      5354,
+      6002,
+      1184,
+      10054,
+      64,
+      7900,
+      3314,
+      3570,
+      7482,
+      163,
+      9810,
+      759,
+      5552,
+      4562,
+      1657,
+      7513,
+      19,
+      6138,
+      1665,
+      2305,
+      3451,
+      149,
+      3070,
+      97,
+      871,
+      560,
+      141,
+      502,
+      2,
+      190,
+      43,
+      29,
+      36,
+      2,
+      17,
+      0,
+      4,
+      2,
+      1
+    ]
+  },
+  "pos_speed_hard": {
+    "rule": "q0.999 of window displacement / time (in-ROI)",
+    "split": "train",
+    "val_exceedance": 0.0008309931801249355,
+    "value": 2.434102516994635
+  },
+  "range_order_tol": {
+    "rule": "max(train range-order violation, prev_range - range) + 0.1 (half a 0.2 position step)",
+    "split": "train",
+    "train_frac_cycles_sorted": null,
+    "val_exceedance": 0.0,
+    "value": 0.357
+  },
+  "rcs_by_range": {
+    "rule": "per 1-unit range bin: [q0.00100, q0.999] of train in-ROI RCS; bins with < 200 samples use the global [min, max]",
+    "split": "train",
+    "val_exceedance": 0.0013330315148771348,
+    "value": {
+      "bands": [
+        [
+          16.0,
+          21.0,
+          294
+        ],
+        [
+          15.0,
+          22.0,
+          563
+        ],
+        [
+          16.0,
+          22.668000000000006,
+          333
+        ],
+        [
+          17.0,
+          21.683999999999287,
+          16317
+        ],
+        [
+          18.0,
+          21.0,
+          332
+        ],
+        [
+          17.0,
+          22.0,
+          12825
+        ],
+        [
+          17.0,
+          20.0,
+          9141
+        ],
+        [
+          17.0,
+          18.0,
+          11306
+        ],
+        [
+          16.0,
+          19.0,
+          21600
+        ],
+        [
+          15.0,
+          18.0,
+          11636
+        ],
+        [
+          15.0,
+          17.0,
+          9667
+        ],
+        [
+          14.994000000000007,
+          18.0,
+          6995
+        ],
+        [
+          15.0,
+          17.0,
+          6382
+        ],
+        [
+          15.0,
+          17.0,
+          3139
+        ],
+        [
+          15.0,
+          17.0,
+          11206
+        ]
+      ],
+      "edges": [
+        0.0,
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0,
+        6.0,
+        7.0,
+        8.0,
+        9.0,
+        10.0,
+        11.0,
+        12.0,
+        13.0,
+        14.0,
+        15.0
+      ]
+    }
+  },
+  "rcs_envelope": {
+    "rule": "range-smoothed q0.001/q0.999 envelope of in-ROI RCS, per-track damped weights, shrunk by track support",
+    "split": "train",
+    "value": {
+      "bandwidth": 2.0,
+      "global": [
+        15.0,
+        22.0
+      ],
+      "grid_step": 1.0,
+      "knots": [
+        0.0,
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0,
+        6.0,
+        7.0,
+        8.0,
+        9.0,
+        10.0,
+        11.0,
+        12.0,
+        13.0,
+        14.0,
+        15.0
+      ],
+      "lower": [
+        15.0,
+        15.0,
+        15.701603104931618,
+        15.732351705169648,
+        15.783449737646754,
+        15.839333815657216,
+        15.872719972532742,
+        15.0,
+        15.0,
+        14.157131599311612,
+        14.1618936112282,
+        14.158649292502673,
+        14.14820665203506,
+        14.137106941883888,
+        14.142507533964865,
+        15.0
+      ],
+      "n_eff_tracks": [
+        20.43,
+        18.35,
+        18.81,
+        21.89,
+        28.94,
+        41.79,
+        54.85,
+        54.53,
+        47.52,
+        42.91,
+        41.42,
+        42.43,
+        45.98,
+        50.35,
+        48.14,
+        38.27
+      ],
+      "n_points": 121736,
+      "n_tracks": 1268,
+      "quantiles": [
+        0.0010000000000000009,
+        0.999
+      ],
+      "shrink_n0": 8.0,
+      "upper": [
+        22.0,
+        22.0,
+        22.0,
+        22.0,
+        22.0,
+        22.0,
+        22.0,
+        22.0,
+        22.0,
+        22.0,
+        22.0,
+        21.158649292502673,
+        19.444619956105182,
+        18.54842776753555,
+        18.57003013585947,
+        18.691534424577814
+      ]
+    }
+  },
+  "rcs_hi": {
+    "rule": "max(train RCS)",
+    "split": "train",
+    "val_exceedance": 0.0,
+    "value": 23.0
+  },
+  "rcs_hist": {
+    "rule": "histogram of train RCS (dBsm)",
+    "split": "train",
+    "value": {
+      "12.0": 2,
+      "13.0": 12050,
+      "14.0": 71380,
+      "15.0": 25807,
+      "16.0": 43608,
+      "17.0": 39386,
+      "18.0": 43728,
+      "19.0": 1983,
+      "20.0": 14852,
+      "21.0": 6678,
+      "22.0": 6478,
+      "23.0": 1
+    }
+  },
+  "rcs_integer": {
+    "rule": "all train RCS values are integers",
+    "split": "train",
+    "value": true
+  },
+  "rcs_lo": {
+    "rule": "min(train RCS)",
+    "split": "train",
+    "val_exceedance": 0.0,
+    "value": 12.0
+  },
+  "rcs_std_envelope": {
+    "rule": "range-smoothed q0.999 of rolling RCS std over 15 cycles, shrunk by track support",
+    "split": "train",
+    "value": {
+      "bandwidth": 3.0,
+      "floor": 0.5,
+      "global": [
+        0.0,
+        1.359738536958076
+      ],
+      "knots": [
+        0.0,
+        1.5,
+        3.0,
+        4.5,
+        6.0,
+        7.5,
+        9.0,
+        10.5,
+        12.0,
+        13.5,
+        15.0
+      ],
+      "n_eff_tracks": [
+        18.93,
+        23.36,
+        31.07,
+        42.54,
+        53.07,
+        55.23,
+        51.82,
+        48.54,
+        46.14,
+        42.13,
+        34.33
+      ],
+      "n_windows": 106988,
+      "quantile": 0.999,
+      "shrink_n0": 8.0,
+      "upper": [
+        1.5617369485078043,
+        1.5212890953066858,
+        1.4349977021542282,
+        1.3864738495614457,
+        1.3425714677952287,
+        1.1966888947673844,
+        1.0655675177416906,
+        1.0138572457933495,
+        1.0163849682839112,
+        0.9973671330806727,
+        0.9701727574089396
+      ],
+      "window": 15
+    }
+  },
+  "rcs_std_hard": {
+    "rule": "q0.999 of rolling RCS std over 15 cycles (in-ROI)",
+    "split": "train",
+    "val_exceedance": 0.0009742678663533727,
+    "value": 0.9977753031397179
+  },
+  "rcs_std_samples": {
+    "rule": "101 quantiles of rolling RCS std (attacker sampling)",
+    "split": "train",
+    "value": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.249,
+      0.249,
+      0.249,
+      0.249,
+      0.249,
+      0.249,
+      0.249,
+      0.249,
+      0.249,
+      0.34,
+      0.34,
+      0.34,
+      0.34,
+      0.34,
+      0.34,
+      0.365,
+      0.4,
+      0.4,
+      0.4,
+      0.4,
+      0.442,
+      0.442,
+      0.442,
+      0.442,
+      0.442,
+      0.471,
+      0.471,
+      0.471,
+      0.471,
+      0.49,
+      0.49,
+      0.49,
+      0.49,
+      0.499,
+      0.499,
+      0.499,
+      0.573,
+      1.665
+    ]
+  },
+  "rcs_std_soft": {
+    "rule": "q0.99 of rolling RCS std",
+    "split": "train",
+    "value": 0.573488351136175
+  },
+  "reassign_jump": {
+    "frac_above": 8.110112151265177e-05,
+    "rule": "SPEC.md default 1.0; kept because train same-slot step distribution has a clear gap (see q-values)",
+    "split": "train",
+    "step_max": 20.483163818121454,
+    "step_q9999": 0.8944271909999159,
+    "value": 1.0
+  },
+  "replay_library_size": {
+    "rule": "fingerprints of moving in-ROI train tracks",
+    "split": "train",
+    "value": 3806
+  },
+  "rr_resid_hard": {
+    "rule": "q0.999 of |range-rate(LSQ over 15 cycles) - rr_scale * mean reported radial v| (in-ROI windows)",
+    "split": "train",
+    "val_exceedance": 0.0026075992893575565,
+    "value": 0.6119417988155192
+  },
+  "rr_resid_soft": {
+    "rule": "q0.99 of the same residual",
+    "split": "train",
+    "value": 0.4528163835382096
+  },
+  "rr_scale": {
+    "corr": 0.9263789075969155,
+    "n_windows": 286,
+    "rule": "least-squares k in range_rate = k * reported radial velocity, moving in-ROI windows with |v_r| >= 0.5",
+    "split": "train",
+    "value": 0.7885
+  },
+  "rule_thresholds": {
+    "calibrated": true,
+    "cv": {
+      "caveat": "recordings are consecutive segments of one session; episodes are clustered; no IID or distribution-free guarantee",
+      "episodes": 0,
+      "episodes_detail": [],
+      "minutes": 8.447,
+      "per_minute": 0.0,
+      "per_recording": [
+        {
+          "events": 0,
+          "held_out": "emptyRoom.csv",
+          "minutes": 1.936
+        },
+        {
+          "events": 0,
+          "held_out": "onePersonMovingFrontAndBack.csv",
+          "minutes": 1.825
+        },
+        {
+          "events": 0,
+          "held_out": "onePersonMovingSideToSide.csv",
+          "minutes": 2.209
+        },
+        {
+          "events": 0,
+          "held_out": "multiplePeopleChaotic.csv",
+          "minutes": 2.476
+        }
+      ],
+      "poisson_ci95_per_minute": [
+        0.0,
+        0.43671976951957103
+      ],
+      "reference_events_without_tunable_rules": 0
+    },
+    "fusion_mn": [
+      4,
+      6
+    ],
+    "rule": "per rule: most sensitive grid value at which the rule alone adds <= 0 alert episodes on clean recordings scored by a model fitted without them (inner leave-one-recording-out CV over train+validation recordings); null = no grid value met the allowance (rule inactive)",
+    "split": "cv_out_of_recording",
+    "table": [
+      {
+        "allowance": 0,
+        "code": "RCS_ENV",
+        "curve": [
+          [
+            0.0,
+            7
+          ],
+          [
+            0.5,
+            5
+          ],
+          [
+            1.0,
+            1
+          ],
+          [
+            1.5,
+            0
+          ],
+          [
+            2.0,
+            0
+          ],
+          [
+            3.0,
+            0
+          ],
+          [
+            4.0,
+            0
+          ],
+          [
+            6.0,
+            0
+          ]
+        ],
+        "episodes_at_choice": 0,
+        "threshold": 1.5,
+        "unit": "RCS grid steps beyond the envelope"
+      },
+      {
+        "allowance": 0,
+        "code": "ARRIVAL_POS",
+        "curve": [
+          [
+            0.0,
+            0
+          ],
+          [
+            0.5,
+            0
+          ],
+          [
+            1.0,
+            0
+          ],
+          [
+            2.0,
+            0
+          ],
+          [
+            4.0,
+            0
+          ],
+          [
+            8.0,
+            0
+          ],
+          [
+            16.0,
+            0
+          ]
+        ],
+        "episodes_at_choice": 0,
+        "threshold": 0.0,
+        "unit": "ticks later than the burst position predicts"
+      },
+      {
+        "allowance": 0,
+        "code": "SPEED",
+        "curve": [
+          [
+            0.0,
+            1
+          ],
+          [
+            0.25,
+            1
+          ],
+          [
+            0.5,
+            1
+          ],
+          [
+            1.0,
+            0
+          ],
+          [
+            2.0,
+            0
+          ],
+          [
+            4.0,
+            0
+          ],
+          [
+            8.0,
+            0
+          ]
+        ],
+        "episodes_at_choice": 0,
+        "threshold": 1.0,
+        "unit": "m/s above the clean-train speed bound"
+      },
+      {
+        "allowance": 0,
+        "code": "SLOT_RANGE",
+        "curve": [
+          [
+            0.0,
+            1
+          ],
+          [
+            1.0,
+            0
+          ],
+          [
+            2.0,
+            0
+          ],
+          [
+            4.0,
+            0
+          ],
+          [
+            8.0,
+            0
+          ],
+          [
+            16.0,
+            0
+          ]
+        ],
+        "episodes_at_choice": 0,
+        "threshold": 1.0,
+        "unit": "slot ids above the clean-train maximum"
+      },
+      {
+        "allowance": 0,
+        "code": "ACCEL",
+        "curve": [
+          [
+            0.0,
+            7
+          ],
+          [
+            2.0,
+            3
+          ],
+          [
+            5.0,
+            2
+          ],
+          [
+            10.0,
+            0
+          ],
+          [
+            20.0,
+            0
+          ],
+          [
+            40.0,
+            0
+          ],
+          [
+            80.0,
+            0
+          ]
+        ],
+        "episodes_at_choice": 0,
+        "threshold": 10.0,
+        "unit": "m/s^2 above the clean-train bound"
+      },
+      {
+        "allowance": 0,
+        "code": "RR_RESID",
+        "curve": [
+          [
+            0.0,
+            23
+          ],
+          [
+            0.1,
+            12
+          ],
+          [
+            0.25,
+            2
+          ],
+          [
+            0.5,
+            1
+          ],
+          [
+            1.0,
+            0
+          ],
+          [
+            2.0,
+            0
+          ],
+          [
+            4.0,
+            0
+          ]
+        ],
+        "episodes_at_choice": 0,
+        "threshold": 1.0,
+        "unit": "units/s above the clean-train bound"
+      },
+      {
+        "allowance": 0,
+        "code": "POS_SPEED",
+        "curve": [
+          [
+            0.0,
+            16
+          ],
+          [
+            0.25,
+            11
+          ],
+          [
+            0.5,
+            5
+          ],
+          [
+            1.0,
+            3
+          ],
+          [
+            2.0,
+            1
+          ],
+          [
+            4.0,
+            0
+          ]
+        ],
+        "episodes_at_choice": 0,
+        "threshold": 4.0,
+        "unit": "units/s above the clean-train bound"
+      },
+      {
+        "allowance": 0,
+        "code": "RCS_STD",
+        "curve": [
+          [
+            0.0,
+            4
+          ],
+          [
+            0.25,
+            0
+          ],
+          [
+            0.5,
+            0
+          ],
+          [
+            1.0,
+            0
+          ],
+          [
+            2.0,
+            0
+          ],
+          [
+            4.0,
+            0
+          ]
+        ],
+        "episodes_at_choice": 0,
+        "threshold": 0.25,
+        "unit": "dB above the conditional std bound"
+      },
+      {
+        "allowance": 0,
+        "code": "COLOC",
+        "curve": [
+          [
+            0.0,
+            1
+          ],
+          [
+            0.05,
+            0
+          ],
+          [
+            0.1,
+            0
+          ],
+          [
+            0.2,
+            0
+          ]
+        ],
+        "episodes_at_choice": 0,
+        "threshold": 0.05,
+        "unit": "position units below the co-location minimum"
+      },
+      {
+        "allowance": 0,
+        "code": "REPLAY",
+        "curve": [
+          [
+            0.0,
+            2
+          ],
+          [
+            1.0,
+            2
+          ],
+          [
+            2.0,
+            0
+          ],
+          [
+            3.0,
+            0
+          ],
+          [
+            4.0,
+            0
+          ],
+          [
+            5.0,
+            0
+          ],
+          [
+            6.0,
+            0
+          ],
+          [
+            8.0,
+            0
+          ]
+        ],
+        "episodes_at_choice": 0,
+        "threshold": 2.0,
+        "unit": "consecutive matching fingerprint windows beyond the threshold (run length)"
+      },
+      {
+        "allowance": 0,
+        "code": "DRIFT",
+        "curve": [
+          [
+            4.0,
+            28
+          ],
+          [
+            5.0,
+            15
+          ],
+          [
+            6.0,
+            7
+          ],
+          [
+            7.0,
+            3
+          ],
+          [
+            8.0,
+            0
+          ],
+          [
+            9.0,
+            0
+          ],
+          [
+            10.0,
+            0
+          ],
+          [
+            12.0,
+            0
+          ],
+          [
+            16.0,
+            0
+          ],
+          [
+            24.0,
+            0
+          ],
+          [
+            40.0,
+            0
+          ]
+        ],
+        "episodes_at_choice": 0,
+        "threshold": 8.0,
+        "unit": "scaled residual (z) of the position/velocity consistency model, moving regime"
+      },
+      {
+        "allowance": 0,
+        "code": "DRIFT_EWMA",
+        "curve": [
+          [
+            4.0,
+            9
+          ],
+          [
+            5.0,
+            3
+          ],
+          [
+            6.0,
+            0
+          ],
+          [
+            7.0,
+            0
+          ],
+          [
+            8.0,
+            0
+          ],
+          [
+            10.0,
+            0
+          ],
+          [
+            12.0,
+            0
+          ],
+          [
+            16.0,
+            0
+          ],
+          [
+            24.0,
+            0
+          ]
+        ],
+        "episodes_at_choice": 0,
+        "threshold": 6.0,
+        "unit": "normalised EWMA (lambda from config) of the per-step residual, moving steps"
+      },
+      {
+        "allowance": 0,
+        "code": "DRIFT_STATIC",
+        "curve": [
+          [
+            8.0,
+            242
+          ],
+          [
+            12.0,
+            72
+          ],
+          [
+            16.0,
+            14
+          ],
+          [
+            24.0,
+            1
+          ],
+          [
+            32.0,
+            0
+          ],
+          [
+            40.0,
+            0
+          ],
+          [
+            80.0,
+            0
+          ]
+        ],
+        "episodes_at_choice": 0,
+        "threshold": 32.0,
+        "unit": "the same z for windows below the moving speed (heavy-tailed: creeping far-field objects)"
+      }
+    ],
+    "value": {
+      "ACCEL": 10.0,
+      "ARRIVAL_POS": 0.0,
+      "COLOC": 0.05,
+      "DRIFT": 8.0,
+      "DRIFT_EWMA": 6.0,
+      "DRIFT_STATIC": 32.0,
+      "POS_SPEED": 4.0,
+      "RCS_ENV": 1.5,
+      "RCS_STD": 0.25,
+      "REPLAY": 2.0,
+      "RR_RESID": 1.0,
+      "SLOT_RANGE": 1.0,
+      "SPEED": 1.0
+    }
+  },
+  "slot_birth_hist": {
+    "rule": "counts of slot ids at track birth (train)",
+    "split": "train",
+    "value": [
+      151,
+      158,
+      144,
+      159,
+      54,
+      165,
+      175,
+      113,
+      5,
+      204,
+      190,
+      61,
+      155,
+      232,
+      148,
+      146,
+      182,
+      230,
+      132,
+      160,
+      185,
+      169,
+      128,
+      172,
+      165,
+      56,
+      162,
+      134,
+      139,
+      167,
+      117,
+      169,
+      41,
+      66,
+      113,
+      113,
+      96,
+      56,
+      82,
+      58,
+      56,
+      57,
+      32,
+      37,
+      28,
+      12,
+      26,
+      13,
+      7,
+      7,
+      2,
+      13,
+      3,
+      1
+    ]
+  },
+  "slot_max": {
+    "rule": "max(train slot id)",
+    "split": "train",
+    "val_exceedance": 0.0,
+    "value": 53
+  },
+  "slot_use_hist": {
+    "rule": "counts of slot ids over all train objects",
+    "split": "train",
+    "value": [
+      8659,
+      9553,
+      7762,
+      6484,
+      10380,
+      9648,
+      9178,
+      9338,
+      11449,
+      7257,
+      7510,
+      10269,
+      7237,
+      6727,
+      7607,
+      8365,
+      5185,
+      5918,
+      7724,
+      5166,
+      5061,
+      5517,
+      5909,
+      3246,
+      8198,
+      9405,
+      4635,
+      5671,
+      4228,
+      2979,
+      4220,
+      2968,
+      9624,
+      6525,
+      2300,
+      3202,
+      5283,
+      2336,
+      1852,
+      1243,
+      870,
+      968,
+      603,
+      3698,
+      404,
+      1791,
+      203,
+      969,
+      49,
+      93,
+      19,
+      443,
+      21,
+      4
+    ]
+  },
+  "soft_quantile": {
+    "iforest_rule": "same selected validation quantile as AE; not used to select operating point",
+    "rule": "smallest candidate quantile with validation alerts/min < 1.0; candidates [0.999, 0.9995, 0.9999, 0.99995, 1.0]",
+    "selection_model": "ae",
+    "split": "val",
+    "table": [
+      {
+        "ae_threshold_moving": 11.994357894273058,
+        "ae_threshold_static": 2.1211114521987735,
+        "iforest_threshold_moving": 0.6755000837028137,
+        "iforest_threshold_static": 0.5488360442179016,
+        "quantile": 0.999,
+        "val_alert_events": 29,
+        "val_alerts_per_minute": 13.737,
+        "val_fp_flagged": 0.002484275664261436,
+        "val_minutes": 2.111
+      },
+      {
+        "ae_threshold_moving": 12.137586508520727,
+        "ae_threshold_static": 2.261283219769882,
+        "iforest_threshold_moving": 0.6828788072767019,
+        "iforest_threshold_static": 0.5561307833833665,
+        "quantile": 0.9995,
+        "val_alert_events": 12,
+        "val_alerts_per_minute": 5.684,
+        "val_fp_flagged": 0.0008356199961606649,
+        "val_minutes": 2.111
+      },
+      {
+        "ae_threshold_moving": 12.390364242597148,
+        "ae_threshold_static": 2.5393532133901515,
+        "iforest_threshold_moving": 0.689135215808091,
+        "iforest_threshold_static": 0.5670340557153015,
+        "quantile": 0.9999,
+        "val_alert_events": 1,
+        "val_alerts_per_minute": 0.474,
+        "val_fp_flagged": 3.387648633083776e-05,
+        "val_minutes": 2.111
+      },
+      {
+        "ae_threshold_moving": 12.421961459356652,
+        "ae_threshold_static": 2.6567031376256622,
+        "iforest_threshold_moving": 0.6899172668745135,
+        "iforest_threshold_static": 0.5791333296134886,
+        "quantile": 0.99995,
+        "val_alert_events": 1,
+        "val_alerts_per_minute": 0.474,
+        "val_fp_flagged": 3.387648633083776e-05,
+        "val_minutes": 2.111
+      },
+      {
+        "ae_threshold_moving": 12.453558676116254,
+        "ae_threshold_static": 2.7032597086296306,
+        "iforest_threshold_moving": 0.6906993179409383,
+        "iforest_threshold_static": 0.5853618834280881,
+        "quantile": 1.0,
+        "val_alert_events": 1,
+        "val_alerts_per_minute": 0.474,
+        "val_fp_flagged": 3.387648633083776e-05,
+        "val_minutes": 2.111
+      }
+    ],
+    "value": 0.9999
+  },
+  "speed_max": {
+    "rule": "max(train reported speed, moving in-ROI tracks) + one 0.25 m/s step",
+    "split": "train",
+    "val_exceedance": 0.0,
+    "value": 5.212358310319802
+  },
+  "speed_soft": {
+    "rule": "q0.999 of train reported speed (moving in-ROI tracks)",
+    "split": "train",
+    "value": 4.962358310319802
+  }
+}

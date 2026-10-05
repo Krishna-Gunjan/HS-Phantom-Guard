@@ -1,0 +1,813 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Explore recorded radar data, simulated CAN attacks and the evidence behind causal anomaly alerts."
+    />
+    <title>Phantom Guard — Radar replay lab</title>
+    <script src="/assets/theme.js"></script>
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip" href="#replay">Skip to replay controls</a>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Phantom Guard home"
+        ><svg viewBox="0 0 32 32" aria-hidden="true">
+          <path
+            d="M16 3 28 9v10L16 29 4 19V9Z M16 8v16 M9 12l14 8 M23 12 9 20"
+          /></svg
+        ><span>PHANTOM<br /><b>GUARD</b></span></a
+      >
+      <nav aria-label="Main navigation">
+        <a href="#top">Home</a><a href="#replay">Replay Lab</a
+        ><a href="#understand">How It Works</a><a href="#guide">Guide</a
+        ><a href="#evidence">Results</a>
+      </nav>
+      <label class="theme-control" for="theme"
+        >Theme
+        <select id="theme" aria-label="Color theme">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+          <option value="system" selected>System</option>
+        </select>
+      </label>
+      <span id="ready" class="health" role="status">Checking service…</span>
+    </header>
+    <main id="top">
+      <section class="intro">
+        <div class="intro-copy">
+          <p class="eyebrow">P31 / CAN INTEGRITY / RECORDED RADAR</p>
+          <h1>A plausible frame.<br /><em>A suspicious past.</em></h1>
+          <p class="lede">
+            Watch ordinary radar frames meet a causal detector. Explore
+            simulated attacks, follow the tracks, and inspect what actually
+            triggered an alert.
+          </p>
+          <div class="hero-actions">
+            <a class="primary link-button" href="#replay"
+              >Open Replay Lab <span aria-hidden="true">↗</span></a
+            >
+            <a class="text-button" href="#guide">Start with the guide →</a>
+          </div>
+          <p class="scope">
+            Recorded-data prototype · CPU inference · No live sensor
+          </p>
+        </div>
+        <div class="hero-instrument" id="hero-visual">
+          <div class="illustration-heading">
+            <span class="micro">ILLUSTRATION / NOT REPLAY DATA</span>
+            <div role="group" aria-label="Illustration projection">
+              <button data-hero-view="2d" aria-pressed="true">2D</button
+              ><button data-hero-view="3d" aria-pressed="false">
+                Perspective
+              </button>
+            </div>
+          </div>
+          <canvas
+            id="hero-radar"
+            aria-label="Symbolic radar sweep with moving markers, trails and velocity arrows; perspective adds no measured elevation"
+          ></canvas>
+          <div class="instrument-label">
+            <span>FORMAT ≠ AUTHENTICITY</span
+            ><button id="hero-pause" aria-pressed="true">
+              Pause illustration
+            </button>
+          </div>
+          <p class="hint">
+            Six symbolic paths. Drag to turn the field; switch projection to
+            explore the same plane.
+          </p>
+        </div>
+      </section>
+      <section id="guide" class="guide-section" aria-labelledby="guide-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">START HERE / FOUR SMALL STEPS</p>
+            <h2 id="guide-title">From recording to reason.</h2>
+          </div>
+          <button id="guide-open">Quick reference ↗</button>
+        </div>
+        <ol class="guide-cards">
+          <li>
+            <svg viewBox="0 0 80 48" aria-hidden="true">
+              <rect x="8" y="8" width="64" height="32" rx="3" />
+              <path d="m34 17 15 7-15 7Z" /></svg
+            ><span class="micro">01 / ESTABLISH A CLEAN RUN</span>
+            <h3>Choose a recording.</h3>
+            <p>
+              Open Replay Lab, select a scene and leave attack on <b>Clean</b>.
+              Start with 50–150 cycles, then Run. Jobs may queue or cool before
+              processing. “Clean” means no injected attack; false alerts remain
+              possible.
+            </p>
+            <a href="#replay">Open the lab →</a>
+          </li>
+          <li>
+            <svg viewBox="0 0 80 48" aria-hidden="true">
+              <path d="M8 24h20m24 0h20M40 7v34" />
+              <circle cx="40" cy="24" r="11" /></svg
+            ><span class="micro">02 / CHANGE ONE VARIABLE</span>
+            <h3>Add a supported attack.</h3>
+            <p>
+              Select T1–T4, an enabled capability and a seed. A2 repairs
+              protocol structure; A3 adds plausible motion. T3 supports A3/A4
+              only. Use the same recording and seed to compare; support still
+              depends on eligible material.
+            </p>
+            <details>
+              <summary>Seeds and advanced options</summary>
+              <p>
+                Seed fixes attacker randomness. Motion and translated replay
+                options appear where supported. Cycle count limits displayed
+                detection, not the attack's full-segment planning. A failed
+                preparation is shown explicitly.
+              </p>
+            </details>
+          </li>
+          <li>
+            <svg viewBox="0 0 80 48" aria-hidden="true">
+              <path d="M10 38h60M18 38V10m5 23 13-9 13 3 14-15" />
+              <circle cx="49" cy="27" r="6" /></svg
+            ><span class="micro">03 / FOLLOW A TRACK</span>
+            <h3>Play, pause, inspect.</h3>
+            <p>
+              Use Play, Step or the timeline. Choose 2D or 3D before or after a
+              run; both show the same cycle. Select a marker or object list
+              entry to see its history and speed chart. 3D height is
+              illustrative; no measured elevation or object class exists.
+            </p>
+          </li>
+          <li>
+            <svg viewBox="0 0 80 48" aria-hidden="true">
+              <path
+                d="M12 9h56v30H12Zm10 8h8m10 0h18M22 25h8m10 0h18M22 33h8m10 0h18"
+              /></svg
+            ><span class="micro">04 / READ THE EVIDENCE</span>
+            <h3>Separate flags from alerts.</h3>
+            <p>
+              Green means <b>not flagged</b>. Amber flags have current reasons;
+              red alerts can persist after a reason stops. Inspect reasons and
+              calibrated score bounds, then Results for generated offline
+              evaluation. Clip alerts are not an attack detection rate.
+            </p>
+            <a href="#evidence">Read generated results →</a>
+          </li>
+        </ol>
+        <details class="guide-details">
+          <summary>What this prototype can and cannot establish</summary>
+          <p>
+            CAN injection is simulated on recordings, with causal detector
+            history and no labels entering inference. Seeking and themes reuse
+            completed results. The clean false-alert target was not met in the
+            supplied reports, and some eligible attacks evaded detection.
+            Coordinate units, decoder layout and tick duration remain
+            configurable assumptions. Cancel/Reset clears the displayed run and
+            requests server cleanup.
+          </p>
+        </details>
+      </section>
+      <dialog id="guide-modal">
+        <button
+          id="guide-close"
+          class="dialog-close"
+          aria-label="Close field guide"
+        >
+          ×
+        </button>
+        <p class="eyebrow">A QUICK FIELD GUIDE</p>
+        <h2>Three ways to inspect a claim.</h2>
+        <ol>
+          <li>
+            <b>Run a clean clip.</b> Green means the detector did not flag it. A
+            clean recording can still produce a false alert.
+          </li>
+          <li>
+            <b>Add a supported CAN attack.</b> The attacker emits ordinary
+            encoded frames into the same decoding path. A supported request can
+            lack eligible material.
+          </li>
+          <li>
+            <b>Inspect a verdict, then the matrix.</b> A scene alert is
+            different from finding the exact forged object. The offline
+            evaluation is separate from your selected clip.
+          </li>
+        </ol>
+        <a class="primary link-button" href="#replay" id="guide-start"
+          >Try the replay →</a
+        >
+      </dialog>
+      <section
+        id="replay"
+        class="replay-section"
+        aria-labelledby="replay-title"
+      >
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">01 / EXPLORE THE REPLAY</p>
+            <h2 id="replay-title">The radar replay lab.</h2>
+          </div>
+          <p>
+            Real recordings. Generated verdicts.<br />Every view shares the same
+            discrete cycle.
+          </p>
+        </div>
+        <div class="workspace">
+          <aside class="controls">
+            <form id="run-form">
+              <div class="label-line">
+                <h3>Configure a run</h3>
+                <span class="micro">TEST SEGMENT</span>
+              </div>
+              <label for="recording">Recorded scene</label
+              ><select id="recording" required></select>
+              <p id="recording-description" class="hint"></p>
+              <label for="attack">Simulated attack</label
+              ><select id="attack">
+                <option value="">Clean · no injection</option>
+              </select>
+              <p id="attack-description" class="hint"></p>
+              <div class="two">
+                <div>
+                  <label for="level">Capability</label
+                  ><select id="level"></select>
+                </div>
+                <div>
+                  <label for="seed">Seed</label
+                  ><input
+                    id="seed"
+                    type="number"
+                    min="0"
+                    max="4294967295"
+                    value="11"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="two">
+                <div>
+                  <label for="motion">Motion case</label
+                  ><select id="motion">
+                    <option>moving</option>
+                    <option>static</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="variant">Replay shape</label
+                  ><select id="variant">
+                    <option>exact</option>
+                    <option>translated</option>
+                  </select>
+                </div>
+              </div>
+              <label for="cycles">Cycles to process</label
+              ><input
+                id="cycles"
+                type="number"
+                min="1"
+                max="1200"
+                value="600"
+                required
+              />
+              <p id="eligibility" class="hint">
+                Support comes from the server catalog.
+              </p>
+              <button type="submit" id="run" class="primary" disabled>
+                Run detector <span aria-hidden="true">→</span>
+              </button>
+              <div class="two actions">
+                <button type="button" id="cancel" disabled>Cancel job</button
+                ><button type="button" id="reset">Reset</button>
+              </div>
+            </form>
+            <div id="progress" aria-live="off">
+              Connecting to the local replay service…
+            </div>
+            <button id="reconnect" hidden>Reconnect / recover session</button>
+            <details>
+              <summary>Capability &amp; eligibility</summary>
+              <p>
+                A0 uses unrelated values and timing. A1 understands arrival
+                timing and free slots. A2 also repairs protocol counts and
+                counters. A3 adds plausible physics and continuity. A4 draws on
+                recorded motion.
+              </p>
+              <p>
+                T3 is inherently A3/A4. T3 and T4 need moving tracks. Support is
+                not a promise that a clip has free slots or eligible
+                trajectories. An emitted attack can escape detection.
+              </p>
+            </details>
+            <p class="causal-note">
+              <b>CAUSAL BY DESIGN</b><br />Only current and past frames
+              influence a verdict. Seeking reuses completed verdicts.
+            </p>
+          </aside>
+          <div class="viewer">
+            <div class="viewer-heading">
+              <span id="run-kind" class="badge">AWAITING A RECORDED RUN</span>
+              <div class="view-switch" role="group" aria-label="Replay view">
+                <button id="view2d" aria-pressed="true">2D plan</button
+                ><button id="view3d" aria-pressed="false">3D orbit</button>
+              </div>
+            </div>
+            <div class="legend">
+              <span><i class="dot green"></i>○ Not flagged</span
+              ><span><i class="dot amber"></i>◇ Flagged</span
+              ><span><i class="dot red"></i>! Alert</span
+              ><span>↗ Velocity / 1 s display scale</span>
+            </div>
+            <div class="canvas-wrap">
+              <section
+                id="loading-panel"
+                class="loading-panel"
+                aria-labelledby="loading-title"
+                hidden
+              >
+                <div class="dragon-scene" aria-hidden="true">
+                  <svg viewBox="0 0 340 105">
+                    <path
+                      class="dragon-circuit"
+                      d="M30 75H90L110 45H155L178 20H260L300 45V80H30Z"
+                    />
+                    <circle class="dragon-ring" cx="178" cy="50" r="40" />
+                    <g class="dragon">
+                      <path
+                        d="m-24 6 9-4 4-12 6 9 10-8-1 8 10-1 6 5-8 5-5-2-6 3-6-1-6 5-4-2 4-5-7-1-4 6-4-2 5-7Z"
+                      />
+                      <path class="dragon-wing" d="m-8-1-8-18 19 8-1 10Z" />
+                      <circle cx="15" cy="1" r="1.5" />
+                      <path class="dragon-tail" d="m-21 5-13-4 10-5" />
+                    </g></svg
+                  ><span>DECORATIVE CIRCUIT DRAGON / NOT SENSOR DATA</span>
+                </div>
+                <h3 id="loading-title">Preparing replay</h3>
+                <p id="loading-detail"></p>
+                <progress
+                  id="loading-meter"
+                  aria-label="Reported job progress"
+                ></progress>
+                <p id="loading-elapsed" class="micro"></p>
+                <div class="loading-actions">
+                  <button id="loading-cancel" type="button">Cancel job</button
+                  ><button id="loading-minimize" type="button">
+                    Minimize &amp; explore
+                  </button>
+                </div>
+              </section>
+              <canvas
+                id="scene"
+                aria-label="Planar radar objects; select an object here or in the object list"
+              ></canvas
+              ><canvas
+                id="scene3d"
+                hidden
+                aria-label="Illustrative 3D presentation of the same planar coordinates"
+              ></canvas>
+              <div id="empty">
+                <span class="crosshair" aria-hidden="true">+</span
+                ><strong>Your evidence starts here.</strong
+                ><small
+                  >Choose 2D or 3D, then run a recording.<br />Green means “not
+                  flagged,” never authenticated.</small
+                >
+              </div>
+              <div id="cycle-warning" hidden></div>
+              <span id="scene-label" class="scene-label"
+                >PLAN VIEW / PROVISIONAL COORDINATE UNITS</span
+              >
+            </div>
+            <p id="active-view" class="active-view" role="status">
+              Selected view: 2D plan · Awaiting replay
+            </p>
+            <p id="view-note" class="view-note">
+              x/y are recorded planar coordinates. Tick duration and distance
+              scales are configurable assumptions. No measured elevation or
+              object classes.
+            </p>
+            <div class="playback">
+              <button id="play" disabled>Play replay</button
+              ><button id="back" aria-label="Previous cycle" disabled>←</button
+              ><button id="step" aria-label="Next cycle" disabled>Step →</button
+              ><input
+                id="seek"
+                type="range"
+                min="0"
+                max="0"
+                value="0"
+                aria-label="Exact replay cycle"
+                disabled
+              /><select id="speed" aria-label="Playback speed">
+                <option value="0.5">0.5×</option>
+                <option value="1" selected>1×</option>
+                <option value="2">2×</option>
+                <option value="4">4×</option>
+              </select>
+            </div>
+            <div class="time-line">
+              <span id="clock">No cycle selected</span
+              ><span>DISCRETE POSITIONS · SPACE play/pause · ←/→ step</span>
+            </div>
+            <div class="stats">
+              <div>
+                <span>Object cycles</span><strong id="objects">—</strong>
+              </div>
+              <div>
+                <span>Alerting cycles</span><strong id="alerts">—</strong>
+              </div>
+              <div>
+                <span>Detector processing p99</span
+                ><strong id="latency">—</strong>
+              </div>
+              <div>
+                <span>Capture assembly p99</span
+                ><strong id="assembly">—</strong>
+              </div>
+            </div>
+            <section class="track-chart" aria-labelledby="track-chart-title">
+              <h3 id="track-chart-title">Selected-track speed</h3>
+              <canvas
+                id="track-chart"
+                aria-label="Reported velocity magnitude in provisional metres per second, with playback cursor"
+              ></canvas>
+              <p id="track-chart-note">Select an object after replay.</p>
+            </section>
+            <div class="comparison">
+              <button id="retain" disabled>
+                Retain clean run for comparison</button
+              ><label
+                ><input id="compare" type="checkbox" disabled /> Synchronized
+                clean comparison</label
+              >
+              <p id="compare-note">
+                Completed clean results can be retained in this tab. Alignment
+                requires explicit source-cycle correspondence; emitted frame
+                indices are not alignment keys.
+              </p>
+              <canvas
+                id="comparison-scene"
+                hidden
+                aria-label="Retained clean run aligned to the current source cycle"
+              ></canvas>
+            </div>
+          </div>
+          <aside class="inspector">
+            <div class="label-line">
+              <h3>Object inspector</h3>
+              <span id="object-count" class="micro">0 IN FRAME</span>
+            </div>
+            <p class="hint">
+              Select a marker or an object below. Scene alerts never mark every
+              object as forged.
+            </p>
+            <select
+              id="object-select"
+              aria-label="Select object in current cycle"
+              disabled
+            >
+              <option value="">No object selected</option>
+            </select>
+            <div id="object-details">
+              <p class="muted">
+                Frame identity, track lifetime, reasons and actual scores appear
+                here.
+              </p>
+            </div>
+            <h4>Layer availability</h4>
+            <div id="layer-status" class="layer-status">
+              Available after a run.
+            </div>
+            <p class="hint">
+              Unavailable scores are not zero. Anomaly scores are not
+              probabilities.
+            </p>
+          </aside>
+        </div>
+        <div class="bottom-grid">
+          <section class="log-panel">
+            <div class="panel-title">
+              <h3>Flags &amp; alert history</h3>
+              <label
+                ><input id="alerts-only" type="checkbox" checked /> Alerts
+                only</label
+              >
+            </div>
+            <p class="hint">
+              Click to select the actual cycle and final frame. Carried
+              persistence is distinct from current triggering reasons.
+            </p>
+            <div id="alert-log" class="log">No replay processed yet.</div>
+            <div class="log-pages">
+              <button id="log-older" disabled>Earlier events</button
+              ><span id="log-count">0 events</span
+              ><button id="log-newer" disabled>Later events</button>
+            </div>
+          </section>
+          <section class="provenance-panel">
+            <h3>Selected clip provenance</h3>
+            <p class="hint">
+              This run is not an offline attack-evaluation benchmark.
+            </p>
+            <div id="provenance">No run selected.</div>
+            <details>
+              <summary>Timing definitions &amp; raw provenance</summary>
+              <p>
+                Preparation loads artifacts/data and plans a simulated attack.
+                Queue/cooling is scheduler time. Processing p99 measures
+                detector work per cycle; assembly is capture delay until a cycle
+                closes. Full-job time includes preparation and presentation.
+                Playback speed changes only the browser.
+              </p>
+              <pre id="raw-provenance"></pre>
+            </details>
+          </section>
+        </div>
+      </section>
+      <section
+        id="understand"
+        class="understand-section"
+        data-section="teaching"
+        aria-labelledby="understand-title"
+      >
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">02 / UNDERSTAND THE DETECTOR</p>
+            <h2 id="understand-title">
+              Trust is a sequence,<br />not a single frame.
+            </h2>
+          </div>
+          <p>
+            A plausible encoding can still hide an anomaly.<br />Each layer
+            tests a different part of the story.
+          </p>
+        </div>
+        <div id="teaching" class="teaching-area">
+          <div class="architecture">
+            <div class="architecture-top">
+              <span class="micro">REQUEST-TIME / CPU INFERENCE</span
+              ><span class="micro">SELECT A STAGE TO EXPLORE</span>
+            </div>
+            <div class="attacker-lane">
+              <span>Simulated attacker</span
+              ><span aria-hidden="true"
+                >↓ modifies / injects ordinary CAN frames</span
+              >
+            </div>
+            <div
+              class="pipeline"
+              role="group"
+              aria-label="Detector architecture"
+            >
+              <button data-stage="frames" aria-pressed="true">
+                <span>01</span><b>Recorded<br />CAN frames</b
+                ><small>raw bytes + time</small></button
+              ><span class="arrow" aria-hidden="true">→</span
+              ><button data-stage="decode" aria-pressed="false">
+                <span>02</span><b>Common decode<br />&amp; cycle assembly</b
+                ><small>same path for all frames</small></button
+              ><span class="arrow" aria-hidden="true">→</span
+              ><button data-stage="track" aria-pressed="false">
+                <span>03</span><b>Causal<br />tracking</b
+                ><small>separate track lifetimes</small></button
+              ><span class="arrow" aria-hidden="true">→</span
+              ><button data-stage="checks" aria-pressed="false">
+                <span>04</span><b>Layered<br />checks</b
+                ><small>protocol · motion · replay · learned</small></button
+              ><span class="arrow" aria-hidden="true">→</span
+              ><button data-stage="fusion" aria-pressed="false">
+                <span>05</span><b>Fusion &amp;<br />persistence</b
+                ><small>current flag / carried alert</small></button
+              ><span class="arrow" aria-hidden="true">→</span
+              ><button data-stage="verdict" aria-pressed="false">
+                <span>06</span><b>Verdicts<br />&amp; alerts</b
+                ><small>scene ≠ exact object</small>
+              </button>
+            </div>
+            <div
+              class="packet-strip"
+              aria-label="Illustrative packet moves through the selected processing stage"
+            >
+              <span id="packet" class="packet">CAN</span>
+            </div>
+            <div id="stage-detail" class="stage-detail" role="status"></div>
+            <div class="offline-lanes">
+              <div>
+                <b>OFFLINE PREPARATION</b>
+                <p>
+                  Clean training recordings → baseline, trajectory library &amp;
+                  learned model → clean validation calibration → frozen
+                  artifacts for request-time checks.
+                </p>
+              </div>
+              <div>
+                <b>SEPARATE EVALUATOR / PRESENTATION</b>
+                <p>
+                  Attacker sidecar labels + final frame identities + completed
+                  verdicts → measured evaluation. Labels never enter the
+                  detector, features or thresholds.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="lesson">
+            <div>
+              <p class="eyebrow">ILLUSTRATIVE / NOT A GENERATED RUN</p>
+              <h3>Four ways to alter the story.</h3>
+              <p>
+                Explore the attack mechanism. These symbolic paths teach a
+                concept; they are not recording measurements, generated attack
+                results or detector verdicts.
+              </p>
+              <div
+                class="attack-tabs"
+                role="group"
+                aria-label="Illustrated attack type"
+              >
+                <button data-lesson="T1" aria-pressed="true">T1 Phantom</button
+                ><button data-lesson="T2" aria-pressed="false">T2 Flood</button
+                ><button data-lesson="T3" aria-pressed="false">T3 Replay</button
+                ><button data-lesson="T4" aria-pressed="false">T4 Drift</button>
+              </div>
+              <p id="lesson-text"></p>
+              <button id="lesson-play" aria-pressed="true">
+                Pause illustration</button
+              ><button id="lesson-replay">Replay illustration</button
+              ><button id="lesson-step">Step →</button
+              ><span id="lesson-phase" class="micro"> STEP 1 / 4</span>
+            </div>
+            <div class="lesson-scene">
+              <svg
+                id="lesson-svg"
+                viewBox="0 0 480 250"
+                role="img"
+                aria-label="Symbolic attack path illustration"
+              >
+                <path d="M30 200H460M30 40V200" class="lesson-grid" />
+                <path
+                  d="m40 182 70-28 80-18 85-30 115-36"
+                  class="lesson-base"
+                />
+                <path id="lesson-path" d="" />
+                <g id="lesson-markers"></g>
+                <text x="32" y="229">ORDINARY PATH</text>
+                <text x="283" y="229">ORANGE = ILLUSTRATIVE MODIFICATION</text>
+              </svg>
+              <div class="lesson-evidence">
+                <span>Encoding</span><span>Continuity</span
+                ><span>Repetition</span><span>Fusion</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="limitations">
+          <p>
+            <b>Why an alert?</b> Timing or continuity that differs from
+            calibrated clean behavior supports an anomaly finding. Fusion can
+            retain an alert after the current reason stops triggering.
+          </p>
+          <p>
+            <b>Why can a ghost be green?</b> Genuine radar artifacts are still
+            real sensor output. Static clutter and repeated motion are not
+            automatically attacks. Green reports the detector’s decision only.
+          </p>
+          <p>
+            <b>Why can a forgery escape?</b> A plausible trajectory can satisfy
+            these checks. Scene detection and exact-object localization differ;
+            this prototype cannot identify a human attacker or guarantee
+            authenticity.
+          </p>
+        </div>
+      </section>
+      <section
+        id="evidence"
+        class="evidence-section"
+        aria-labelledby="evidence-title"
+      >
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">03 / INSPECT THE EVIDENCE</p>
+            <h2 id="evidence-title">Show the misses, too.</h2>
+          </div>
+          <p>
+            Actual generated offline measurements.<br />Separate from the
+            selected browser clip.
+          </p>
+        </div>
+        <div class="evidence-toolbar">
+          <div role="group" aria-label="Evaluation scope">
+            <button id="matrix-results" aria-pressed="true">
+              Offline matrix</button
+            ><button id="filter-results" aria-pressed="false">
+              Matching runs
+            </button>
+          </div>
+          <label
+            >Status
+            <select id="evidence-status">
+              <option value="">All outcomes</option>
+              <option value="ok">Completed / successful</option>
+              <option value="miss">Includes misses</option>
+              <option value="unsupported">Unsupported</option>
+              <option value="no_material">No eligible material</option>
+              <option value="excluded">Excluded</option>
+            </select></label
+          ><label
+            >Sort
+            <select id="evidence-sort">
+              <option value="default">Report order</option>
+              <option value="scene-asc">Scene detection ↑</option>
+              <option value="scene-desc">Scene detection ↓</option>
+              <option value="objects-asc">Exact-object recall ↑</option>
+            </select></label
+          >
+        </div>
+        <p id="evaluation-note" role="status">Loading generated evaluation…</p>
+        <div id="denominators" class="denominators"></div>
+        <div id="clean-results" class="clean-results"></div>
+        <div
+          class="table-scroll"
+          tabindex="0"
+          role="region"
+          aria-label="Offline evaluation table, scroll for all columns"
+        >
+          <table>
+            <caption>
+              Scene detection and exact forged-object recall have different
+              denominators.
+            </caption>
+            <thead>
+              <tr>
+                <th>Split / source</th>
+                <th>Attack / level</th>
+                <th>Seed / repetition</th>
+                <th>Detected / emitted instances</th>
+                <th>Scene detection</th>
+                <th>Identified / forged frames</th>
+                <th>Exact-object recall</th>
+                <th>Missed / censored</th>
+                <th>Outcome</th>
+              </tr>
+            </thead>
+            <tbody id="evaluation-rows"></tbody>
+          </table>
+        </div>
+        <p id="evidence-empty" hidden>No generated rows match these filters.</p>
+        <div class="evidence-missing">
+          <p>
+            <b>Precision &amp; localization</b
+            ><span id="precision-note"
+              >Unavailable in the legacy report API. Exact-object recall is not
+              precision.</span
+            >
+          </p>
+          <p>
+            <b>Learned-layer ablation</b
+            ><span id="ablation-note"
+              >No compatible measured ablation is supplied by this endpoint. No
+              benefit is claimed.</span
+            >
+          </p>
+        </div>
+        <details>
+          <summary>Generated report provenance &amp; limitations</summary>
+          <pre id="evaluation-provenance"></pre>
+          <p>
+            Time-block and leave-one-scenario-out splits describe these
+            recordings, which were captured consecutively in one session. Scene
+            alarms can include incidental clean alerts. Clean false-alert
+            variation and emitted/unsupported/excluded attempts remain visible.
+            Historical reports are not replaced by proposed detector
+            improvements. Unmeasured fields remain unavailable.
+          </p>
+        </details>
+      </section>
+    </main>
+    <aside
+      id="loading-mini"
+      class="loading-mini"
+      aria-label="Current foreground operation"
+      hidden
+    >
+      <div>
+        <strong id="mini-title"></strong><small id="mini-elapsed"></small>
+      </div>
+      <button id="loading-expand">Show progress</button
+      ><button id="mini-cancel">Cancel job</button>
+    </aside>
+    <div
+      id="loading-announcement"
+      class="sr-only"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    ></div>
+    <footer>
+      <span class="brand-small">PHANTOM GUARD / P31</span>
+      <p>Recorded radar · Simulated CAN injection · Causal anomaly detection</p>
+      <a href="#replay">Back to replay ↑</a>
+    </footer>
+  </body>
+</html>
