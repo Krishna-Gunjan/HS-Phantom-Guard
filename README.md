@@ -151,7 +151,7 @@ your own complete evaluation in `runs/validation`, display that matching run wit
 `python -m phantomguard serve --reports-dir runs/validation`. A smoke evaluation
 is an interface check and does not replace the full performance benchmark.
 
-For the Ubuntu home server, follow [server-handoff.md](docs/server-handoff.md):
+For home servers, follow [server-handoff.md](docs/server-handoff.md):
 matching tested Git SHA, verified ZIP/checksum, read-only dataset/model mounts,
 bounded outputs, exact start/health commands, and measured/unverified limitations.
 Actual server deployment is intentionally left to the server deployment step.
